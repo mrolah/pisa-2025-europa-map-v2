@@ -735,7 +735,7 @@ path.cty.has-data { cursor: pointer; }
   // ---- map -----------------------------------------------------------------
   var map = L.map('map', {
     zoomControl: true, attributionControl: true, minZoom: 1.5, maxZoom: 8, zoomSnap: 0.1, zoomDelta: 0.5,
-    wheelPxPerZoomLevel: 90, worldCopyJump: false
+    wheelPxPerZoomLevel: 90, worldCopyJump: false, inertiaMaxSpeed: 1500
   });
   map.attributionControl.setPrefix(false);
   var layers = {};
@@ -895,13 +895,16 @@ path.cty.has-data { cursor: pointer; }
     view = v;
     try { localStorage.setItem('pisa2025-view', v); } catch (e) {}
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (v === 'world') { fitWorld(!reduce); if (!keepScope) scope = 'world'; }
-    else { fitEU(!reduce); if (!keepScope) scope = 'eu'; }
+    var far = Math.abs(map.getCenter().lng) > 180;   // flung off the map: jump instead of a long fly
+    map.stop();
+    if (v === 'world') { fitWorld(!reduce && !far); if (!keepScope) scope = 'world'; }
+    else { fitEU(!reduce && !far); if (!keepScope) scope = 'eu'; }
     map.closePopup();
     recount(); renderAll();
   }
   document.querySelectorAll('.view button').forEach(function (b) {
-    b.addEventListener('click', function () { if (b.getAttribute('data-view') !== view) setView(b.getAttribute('data-view')); });
+    // clicking the active view again re-centres it (handy after panning away)
+    b.addEventListener('click', function () { setView(b.getAttribute('data-view'), b.getAttribute('data-view') === view); });
   });
 
   function euBounds() {
