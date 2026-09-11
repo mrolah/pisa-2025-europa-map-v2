@@ -1343,8 +1343,8 @@ path.cty.has-data { cursor: pointer; }
 
   // ---- map -----------------------------------------------------------------
   var map = L.map('map', {
-    zoomControl: true, attributionControl: true, minZoom: 3, maxZoom: 8, zoomSnap: 0.1, zoomDelta: 0.5,
-    wheelPxPerZoomLevel: 90, maxBounds: [[27, -32], [74, 80]], maxBoundsViscosity: 0.7, worldCopyJump: false
+    zoomControl: true, attributionControl: true, minZoom: 1.5, maxZoom: 8, zoomSnap: 0.1, zoomDelta: 0.5,
+    wheelPxPerZoomLevel: 90, worldCopyJump: false
   });
   map.attributionControl.setPrefix(false);
   var layers = {};
@@ -1495,16 +1495,17 @@ path.cty.has-data { cursor: pointer; }
   new LangCtl({ position: 'topright' }).addTo(map);
   new ViewCtl({ position: 'topleft' }).addTo(map);
   new LegendCtl({ position: 'bottomleft' }).addTo(map);
-  var EUROPE_BOUNDS = [[27, -32], [74, 80]], WORLD_BOUNDS = [[-62, -185], [84, 185]];
-  function fitWorld() {
+  function fitWorld(animate) {
     var small = map.getSize().x < 700;
-    map.fitBounds([[-56, -168], [76, 178]], { paddingTopLeft: [12, 12], paddingBottomRight: [12, small ? 100 : 104] });
+    var o = { paddingTopLeft: [12, 12], paddingBottomRight: [12, small ? 100 : 104] };
+    if (animate) { o.duration = 1.3; map.flyToBounds([[-56, -168], [76, 178]], o); } else { map.fitBounds([[-56, -168], [76, 178]], o); }
   }
   function setView(v, keepScope) {
     view = v;
     try { localStorage.setItem('pisa2025-view', v); } catch (e) {}
-    if (v === 'world') { map.setMinZoom(1.5); map.setMaxBounds(WORLD_BOUNDS); fitWorld(); if (!keepScope) scope = 'world'; }
-    else { map.setMaxBounds(EUROPE_BOUNDS); map.setMinZoom(3); fitEU(); if (!keepScope) scope = 'eu'; }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (v === 'world') { fitWorld(!reduce); if (!keepScope) scope = 'world'; }
+    else { fitEU(!reduce); if (!keepScope) scope = 'eu'; }
     map.closePopup();
     recount(); renderAll();
   }
@@ -1522,11 +1523,12 @@ path.cty.has-data { cursor: pointer; }
     });
     return b || L.latLngBounds([[34.5, -11], [71.5, 41]]);
   }
-  function fitEU() {
+  function fitEU(animate) {
     var small = map.getSize().x < 700;
-    map.fitBounds(euBounds(), { paddingTopLeft: [12, small ? 12 : 16], paddingBottomRight: [12, small ? 100 : 104] });
+    var o = { paddingTopLeft: [12, small ? 12 : 16], paddingBottomRight: [12, small ? 100 : 104] };
+    if (animate) { o.duration = 1.1; map.flyToBounds(euBounds(), o); } else { map.fitBounds(euBounds(), o); }
   }
-  if (view === 'world') { map.setMinZoom(1.5); map.setMaxBounds(WORLD_BOUNDS); fitWorld(); } else { fitEU(); }
+  if (view === 'world') { fitWorld(); } else { fitEU(); }
   var currentAttr = '';
 
   // ---- language switching --------------------------------------------------
