@@ -1,0 +1,212 @@
+{
+ "blocs": [
+  {
+   "id": "cn",
+   "n": [
+    "B‑S‑J‑Z (China, 4 provinces)",
+    "B‑S‑J‑Z (Kína, 4 tartomány)",
+    "B‑S‑J‑Z (China, 4 Provinzen)"
+   ],
+   "c": 578.7,
+   "d": null,
+   "k": 1
+  },
+  {
+   "id": "ea",
+   "n": [
+    "East Asia 6 (SG, JP, KR, TW, HK, MO)",
+    "Kelet‑Ázsia 6 (SG, JP, KR, TW, HK, MO)",
+    "Ostasien 6 (SG, JP, KR, TW, HK, MO)"
+   ],
+   "c": 525.3,
+   "d": -8.9,
+   "k": 6
+  },
+  {
+   "id": "ang",
+   "n": [
+    "Anglosphere ex‑EU (GB, US, CA, AU, NZ)",
+    "Angolszász országok (GB, US, CA, AU, NZ)",
+    "Anglosphäre ohne EU (GB, US, CA, AU, NZ)"
+   ],
+   "c": 493.1,
+   "d": -3.3,
+   "k": 5
+  },
+  {
+   "id": "us",
+   "n": [
+    "United States",
+    "Egyesült Államok",
+    "USA"
+   ],
+   "c": 485.0,
+   "d": -4.7,
+   "k": 1
+  },
+  {
+   "id": "oecd",
+   "n": [
+    "OECD average",
+    "OECD‑átlag",
+    "OECD‑Durchschnitt"
+   ],
+   "c": 468.7,
+   "d": -8.7,
+   "k": 38
+  },
+  {
+   "id": "eu",
+   "n": [
+    "EU‑27",
+    "EU‑27",
+    "EU‑27"
+   ],
+   "c": 462.5,
+   "d": -11.0,
+   "k": 27
+  },
+  {
+   "id": "eur",
+   "n": [
+    "Europe, all 43 participants",
+    "Európa, mind a 43 résztvevő",
+    "Europa, alle 43 Teilnehmer"
+   ],
+   "c": 447.9,
+   "d": -7.8,
+   "k": 43
+  },
+  {
+   "id": "sea",
+   "n": [
+    "Southeast Asia 7",
+    "Délkelet‑Ázsia 7",
+    "Südostasien 7"
+   ],
+   "c": 397.9,
+   "d": 9.7,
+   "k": 7
+  },
+  {
+   "id": "me",
+   "n": [
+    "Middle East & Gulf 8",
+    "Közel‑Kelet és Öböl 8",
+    "Naher Osten & Golf 8"
+   ],
+   "c": 392.4,
+   "d": 2.5,
+   "k": 8
+  },
+  {
+   "id": "la",
+   "n": [
+    "Latin America 13",
+    "Latin‑Amerika 13",
+    "Lateinamerika 13"
+   ],
+   "c": 386.1,
+   "d": -5.1,
+   "k": 13
+  },
+  {
+   "id": "ca",
+   "n": [
+    "Central Asia & Mongolia 4",
+    "Közép‑Ázsia és Mongólia 4",
+    "Zentralasien & Mongolei 4"
+   ],
+   "c": 382.6,
+   "d": -2.5,
+   "k": 4
+  },
+  {
+   "id": "af",
+   "n": [
+    "Africa 5",
+    "Afrika 5",
+    "Afrika 5"
+   ],
+   "c": 344.7,
+   "d": -11.7,
+   "k": 5
+  }
+ ],
+ "trend": {
+  "years": [
+   2012,
+   2015,
+   2018,
+   2022,
+   2025
+  ],
+  "series": [
+   {
+    "id": "ea",
+    "n": [
+     "East Asia 6",
+     "Kelet‑Ázsia 6",
+     "Ostasien 6"
+    ],
+    "v": [
+     541.7,
+     530.5,
+     530.9,
+     534.0,
+     525.3
+    ]
+   },
+   {
+    "id": "us",
+    "n": [
+     "United States",
+     "Egyesült Államok",
+     "USA"
+    ],
+    "v": [
+     492.0,
+     487.7,
+     495.0,
+     489.3,
+     485.0
+    ]
+   },
+   {
+    "id": "oecd",
+    "n": [
+     "OECD average",
+     "OECD‑átlag",
+     "OECD‑Durchschnitt"
+    ],
+    "v": [
+     497.0,
+     492.0,
+     488.3,
+     477.7,
+     468.7
+    ]
+   },
+   {
+    "id": "eu",
+    "n": [
+     "EU (23 countries, constant set)",
+     "EU (23 ország, állandó kör)",
+     "EU (23 Länder, konstante Gruppe)"
+    ],
+    "v": [
+     493.8,
+     489.6,
+     487.5,
+     477.2,
+     466.6
+    ]
+   }
+  ]
+ },
+ "europe43": {
+  "m": 447.4651,
+  "r": 435.9302,
+  "s": 460.2791
+ }
+}

@@ -1,0 +1,3 @@
+# Only needed for the optional data-preparation scripts; src/build_page.py runs on the standard library.
+shapely>=2.0        # src/build_geo.py
+playwright>=1.40    # src/make_flags.py (plus: playwright install chromium)

@@ -1,0 +1,14 @@
+{
+  "name": "pisa-2025-europa-terkep",
+  "private": true,
+  "description": "Interactive map of PISA 2025 results in Europe relative to the EU-27 average",
+  "license": "MIT",
+  "scripts": {
+    "build": "python src/build_page.py"
+  },
+  "devDependencies": {
+    "flag-icons": "^7.5.0",
+    "leaflet": "1.9.4",
+    "mapshaper": "^0.6.0"
+  }
+}

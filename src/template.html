@@ -1,0 +1,860 @@
+<title>PISA 2025 Európa-térkép</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+/* ---- Leaflet 1.9.4 core CSS (inlined; the CSP admits no external stylesheets) ---- */
+__LEAFLET_CSS__
+</style>
+<style>
+:root {
+  color-scheme: light;
+  --sea: #eef0f3;
+  --panel: #ffffff;
+  --panel-2: #f5f6f8;
+  --ink: #171b22;
+  --ink-2: #566070;
+  --ink-3: #8a919c;
+  --line: #e1e4e9;
+  --line-2: #cfd4db;
+  --accent: #1a56a3;
+  --focus: #3a82cc;
+  --a1: #76ace6; --a2: #3a82cc; --a3: #1a56a3;
+  --b1: #e4956e; --b2: #d86f42; --b3: #bb4620; --b4: #7f2312;
+  --n0: #b9c0ca;
+  --nd: #e7e9ed;
+  --stroke: #ffffff;
+  --stroke-nd: #d0d5dc;
+  --stroke-hover: #171b22;
+  --pill-up-bg: #dce9f8; --pill-up-fg: #164b8f;
+  --pill-dn-bg: #f9ddd1; --pill-dn-fg: #7f2312;
+  --pill-n-bg: #e6e9ee; --pill-n-fg: #4a5361;
+  --shadow: 0 8px 24px rgba(23, 27, 34, 0.14), 0 1px 2px rgba(23, 27, 34, 0.08);
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", var(--font-body);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --sea: #15181d;
+    --panel: #1d2127;
+    --panel-2: #242931;
+    --ink: #eef0f3;
+    --ink-2: #aab2bf;
+    --ink-3: #7d8590;
+    --line: #2e343d;
+    --line-2: #3b424d;
+    --accent: #7db2ec;
+    --focus: #7db2ec;
+    --a1: #8fbdea; --a2: #4a8ed2; --a3: #1b57a0;
+    --b1: #e9b39c; --b2: #dd8560; --b3: #c4522c; --b4: #8a2a17;
+    --n0: #4a505a;
+    --nd: #23272e;
+    --stroke: #15181d;
+    --stroke-nd: #2c323b;
+    --stroke-hover: #ffffff;
+    --pill-up-bg: #1f3a5c; --pill-up-fg: #b9d4f3;
+    --pill-dn-bg: #4a2419; --pill-dn-fg: #f2c2ae;
+    --pill-n-bg: #2e343d; --pill-n-fg: #c3cad4;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --sea: #15181d;
+  --panel: #1d2127;
+  --panel-2: #242931;
+  --ink: #eef0f3;
+  --ink-2: #aab2bf;
+  --ink-3: #7d8590;
+  --line: #2e343d;
+  --line-2: #3b424d;
+  --accent: #7db2ec;
+  --focus: #7db2ec;
+  --a1: #8fbdea; --a2: #4a8ed2; --a3: #1b57a0;
+  --b1: #e9b39c; --b2: #dd8560; --b3: #c4522c; --b4: #8a2a17;
+  --n0: #4a505a;
+  --nd: #23272e;
+  --stroke: #15181d;
+  --stroke-nd: #2c323b;
+  --stroke-hover: #ffffff;
+  --pill-up-bg: #1f3a5c; --pill-up-fg: #b9d4f3;
+  --pill-dn-bg: #4a2419; --pill-dn-fg: #f2c2ae;
+  --pill-n-bg: #2e343d; --pill-n-fg: #c3cad4;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--sea);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+#app {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+#panel {
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+#map {
+  background: var(--sea);
+  min-height: 0;
+}
+
+/* ---- panel: header ---- */
+.hd { padding: 18px 22px 14px; border-bottom: 1px solid var(--line); }
+.eyebrow {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.eyebrow .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-3); }
+.eyebrow .new { color: var(--accent); }
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 27px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 10px 0 8px;
+  text-wrap: balance;
+}
+.lede { margin: 0; color: var(--ink-2); font-size: 13px; max-width: 34em; }
+/* ---- map overlays: language switcher (top-right) and legend (bottom-left) ---- */
+.ov { background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--line-2); border-radius: 6px; box-shadow: var(--shadow); }
+.lang { display: inline-flex; gap: 2px; padding: 3px; }
+.lang button {
+  border: 0; background: transparent; padding: 4px 10px; border-radius: 4px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-2); cursor: pointer;
+}
+.lang button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.lang button:hover:not([aria-pressed="true"]) { color: var(--ink); background: var(--panel-2); }
+
+.lg { padding: 10px 12px 8px; width: 500px; max-width: calc(100vw - 24px); }
+.lg-h { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.lg-base { display: inline-flex; gap: 2px; padding: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; flex: none; }
+.lg-base button { border: 0; background: transparent; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.lg-base button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.lg-base button:hover:not([aria-pressed="true"]) { color: var(--ink); }
+.lg-h .t { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+.lg-h .n { font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+.lg-body { display: flex; align-items: flex-start; gap: 12px; }
+.lg-ramp { flex: 1; min-width: 0; position: relative; }
+.lg-bar { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; margin-bottom: 18px; }
+.lg-bar span { height: 20px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.lg-bar .b4 { background: var(--b4); color: #fff; } .lg-bar .b3 { background: var(--b3); color: #fff; }
+.lg-bar .b2 { background: var(--b2); color: #fff; } .lg-bar .b1 { background: var(--b1); color: #171b22; }
+.lg-bar .n0 { background: var(--n0); color: var(--ink); }
+.lg-bar .a1 { background: var(--a1); color: #171b22; } .lg-bar .a2 { background: var(--a2); color: #fff; } .lg-bar .a3 { background: var(--a3); color: #fff; }
+.lg-ticks { position: absolute; left: 0; right: 0; top: 23px; height: 14px; }
+.lg-ticks span { position: absolute; transform: translateX(-50%); font-size: 10.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1; }
+.lg-ticks span::before { content: ""; position: absolute; left: 50%; top: -4px; width: 1px; height: 3px; background: var(--line-2); }
+.lg-ends { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--ink-3); }
+.lg-ends .n { color: var(--ink-3); }
+.lg-side { display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: 92px; flex: none; }
+.lg-nd { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.lg-rg { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink-2); border-radius: 999px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.lg-rg .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--a2); box-shadow: 0 0 0 1.5px #fff; }
+.lg-rg[aria-pressed="false"] { color: var(--ink-3); }
+.lg-rg[aria-pressed="false"] .dot { background: var(--nd); border: 1px dashed var(--stroke-nd); box-shadow: none; }
+.lg-nd .sw { width: 100%; height: 20px; border-radius: 2px; background: var(--nd); border: 1px dashed var(--stroke-nd); }
+.lg-nd .lb { font-size: 10.5px; color: var(--ink-2); text-align: center; line-height: 1.15; }
+.leaflet-top.leaflet-right .leaflet-control { margin-top: 10px; margin-right: 10px; }
+.leaflet-bottom.leaflet-left .leaflet-control { margin-bottom: 10px; margin-left: 10px; }
+.leaflet-control.ov { border: 1px solid var(--line-2); }
+
+/* ---- EU average strip ---- */
+.avg { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid var(--line); background: var(--panel-2); }
+.avg > div { padding: 10px 8px 10px 22px; border-right: 1px solid var(--line); border-top: 1px solid var(--line); min-width: 0; }
+.avg > div.main { grid-column: 1 / -1; border-right: 0; border-top: 0; display: flex; align-items: baseline; gap: 10px; padding-top: 11px; padding-bottom: 8px; }
+.avg > div:last-child { border-right: 0; }
+.avg .k { font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); line-height: 1.25; }
+.avg .v { font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.avg .v.big { font-size: 28px; color: var(--accent); margin-top: 0; }
+.avg .main .k { flex: 1; }
+
+/* ---- sections ---- */
+section { padding: 14px 22px; border-bottom: 1px solid var(--line); }
+section:last-of-type { border-bottom: 0; }
+h2 {
+  margin: 0 0 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+h2 .sub { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-3); }
+
+/* ---- Top / bottom widget ---- */
+.tb { display: grid; gap: 10px; }
+.scope { display: inline-flex; gap: 2px; padding: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; justify-self: start; }
+.scope button { border: 0; background: transparent; padding: 3px 9px; border-radius: 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.scope button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+.scope button:hover:not([aria-pressed="true"]) { color: var(--ink); }
+.row .nm small { display: block; font-size: 9.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; margin-top: 1px; }
+.tb h3 { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.tb h3::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.tb h3 .mk { width: 10px; height: 10px; border-radius: 2px; }
+.tb h3 .mk.up { background: var(--a3); }
+.tb h3 .mk.dn { background: var(--b4); }
+.rows { display: grid; gap: 2px; }
+.row {
+  display: grid; grid-template-columns: 18px 30px 1fr auto auto; align-items: center; gap: 8px;
+  text-align: left; padding: 6px 8px; margin: 0 -8px; width: calc(100% + 16px);
+  border: 0; background: transparent; border-radius: 6px; cursor: pointer;
+}
+.row:hover, .row.is-active { background: var(--panel-2); }
+.row .rk { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--ink-3); text-align: center; }
+.row .fl { width: 30px; height: 22.5px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); display: block; }
+.row .nm { font-weight: 500; font-size: 13px; line-height: 1.15; min-width: 0; overflow-wrap: anywhere; }
+.row .sc { font-family: var(--font-display); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill.up { background: var(--pill-up-bg); color: var(--pill-up-fg); }
+.pill.dn { background: var(--pill-dn-bg); color: var(--pill-dn-fg); }
+.pill.n { background: var(--pill-n-bg); color: var(--pill-n-fg); }
+
+/* ---- global context charts ---- */
+.global svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+.global .grid { stroke: var(--line); stroke-width: 1; }
+.global .ref { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; }
+.global .stem { stroke: var(--line-2); stroke-width: 1.5; }
+.global .tick { font: 10px var(--font-body); fill: var(--ink-3); }
+.global .lbl { font: 11.5px var(--font-body); fill: var(--ink-2); }
+.global .lbl.eu { font-weight: 600; fill: var(--ink); }
+.global .dot { fill: var(--ink-3); stroke: var(--panel); stroke-width: 1.5; }
+.global .dot.eu { fill: var(--accent); }
+.global .dot.eur { fill: var(--a1); }
+.global .val { font: 600 11.5px var(--font-body); fill: var(--ink); font-variant-numeric: tabular-nums; }
+.global .dlt { font: 600 10.5px var(--font-body); font-variant-numeric: tabular-nums; }
+.global .dlt.up { fill: var(--pill-up-fg); } .global .dlt.dn { fill: var(--pill-dn-fg); } .global .dlt.n { fill: var(--ink-3); }
+.global .chart-foot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--ink-3); margin-top: 2px; }
+.global .note { margin: 8px 0 0; font-size: 12px; color: var(--ink-2); }
+.global .sub-h { margin: 14px 0 6px; }
+.global .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.global .ln.eu, .global .pt.eu { stroke: var(--accent); }
+.global .ln.ea, .global .pt.ea { stroke: var(--b3); }
+.global .ln.us, .global .pt.us { stroke: #1baf7a; }
+.global .ln.oecd, .global .pt.oecd { stroke: var(--ink-3); stroke-dasharray: 4 3; }
+.global .pt { fill: var(--panel); stroke-width: 1.8; }
+.global .pt.eu { fill: var(--accent); }
+.global .ln-lbl { font: 600 10.5px var(--font-body); }
+.global .ln-lbl.eu { fill: var(--accent); } .global .ln-lbl.ea { fill: var(--b3); } .global .ln-lbl.us { fill: #1baf7a; } .global .ln-lbl.oecd { fill: var(--ink-3); }
+
+/* ---- method / sources ---- */
+.method p { margin: 0 0 8px; font-size: 12.5px; color: var(--ink-2); }
+.method p:last-child { margin-bottom: 0; }
+.method a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+.method a:hover { border-bottom-color: currentColor; }
+.method .src { font-size: 11.5px; color: var(--ink-3); }
+
+/* ---- map paths (styled via tokens so both themes apply) ---- */
+.leaflet-container { background: var(--sea); font-family: var(--font-body); }
+path.cty { stroke: var(--stroke); stroke-width: 0.8; stroke-opacity: 1; fill-opacity: 1; transition: fill-opacity .12s ease; }
+path.cty.nd { fill: var(--nd); stroke: var(--stroke-nd); stroke-width: 0.6; }
+path.n0 { fill: var(--n0); }
+path.a1 { fill: var(--a1); } path.a2 { fill: var(--a2); } path.a3 { fill: var(--a3); }
+path.b1 { fill: var(--b1); } path.b2 { fill: var(--b2); } path.b3 { fill: var(--b3); } path.b4 { fill: var(--b4); }
+path.rg { stroke: #fff; stroke-width: 1.4; fill-opacity: 1; cursor: pointer; }
+path.rg.is-hover { stroke: var(--stroke-hover); stroke-width: 2.2; }
+path.cty.is-hover, path.cty.is-active { stroke: var(--stroke-hover); stroke-width: 1.8; }
+path.cty.has-data { cursor: pointer; }
+
+/* ---- Leaflet chrome overrides ---- */
+.leaflet-bar { border: 1px solid var(--line-2) !important; box-shadow: var(--shadow) !important; border-radius: 6px !important; overflow: hidden; }
+.leaflet-bar a { background: var(--panel) !important; color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+.leaflet-bar a:hover { background: var(--panel-2) !important; }
+.leaflet-bar a.leaflet-disabled { color: var(--ink-3) !important; }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--panel) 85%, transparent) !important; color: var(--ink-3) !important; font-size: 10.5px !important; padding: 2px 6px !important; }
+.leaflet-control-attribution a { color: var(--ink-2) !important; }
+.leaflet-tooltip { background: var(--panel); color: var(--ink); border: 1px solid var(--line-2); box-shadow: var(--shadow); border-radius: 5px; padding: 5px 9px; font-size: 12.5px; font-weight: 500; }
+.leaflet-tooltip::before { display: none; }
+.leaflet-tooltip b { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+
+.leaflet-popup-content-wrapper { background: var(--panel); color: var(--ink); border-radius: 8px; box-shadow: var(--shadow); border: 1px solid var(--line); padding: 0; overflow: hidden; }
+.leaflet-popup-content { margin: 0; width: 320px !important; font-size: 13px; line-height: 1.4; }
+.leaflet-popup-tip { background: var(--panel); box-shadow: none; border: 1px solid var(--line); border-top: 0; border-left: 0; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--ink-3); top: 8px; right: 8px; font-size: 20px; width: 22px; height: 22px; }
+.leaflet-container a.leaflet-popup-close-button:hover { color: var(--ink); }
+
+.pp-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px 10px; border-bottom: 1px solid var(--line); }
+.pp-h img { width: 36px; height: 27px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); }
+.pp-h .t { min-width: 0; }
+.pp-h .nm { font-family: var(--font-display); font-weight: 700; font-size: 18px; line-height: 1.1; }
+.pp-h .tag { font-size: 11px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; }
+.pp-hero { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 12px; padding: 10px 14px 8px; }
+.pp-hero .big { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.pp-hero .lbl { font-size: 11px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.pp-hero .dv { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding-bottom: 2px; }
+.pp-hero .rank { font-size: 12px; color: var(--ink-2); }
+.pp-t { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 2px 0 0; }
+.pp-t th, .pp-t td { width: 60px; }
+.pp-t th:first-child, .pp-t td:first-child { width: auto; }
+.pp-t th { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); text-align: right; padding: 4px 10px 4px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--panel-2); white-space: nowrap; overflow: hidden; }
+.pp-t th:first-child { text-align: left; padding-left: 14px; }
+.pp-t th:last-child, .pp-t td:last-child { padding-right: 14px; }
+.pp-t td { padding: 5px 10px 5px 0; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.pp-t td:first-child { text-align: left; padding-left: 14px; color: var(--ink-2); white-space: normal; }
+.pp-t tr:last-child td { border-bottom: 0; }
+.pp-t td.sc { font-weight: 600; }
+.pp-t .up { color: var(--pill-up-fg); } .pp-t .dn { color: var(--pill-dn-fg); } .pp-t .n { color: var(--ink-3); }
+.pp-f { padding: 8px 14px 10px; font-size: 11.5px; color: var(--ink-3); border-top: 1px solid var(--line); }
+.pp-f p { margin: 0; }
+.pp-f p + p { margin-top: 3px; }
+
+/* ---- responsive ---- */
+@media (max-width: 860px) {
+  #app { grid-template-columns: 1fr; grid-template-rows: 56vh minmax(0, 1fr); height: auto; min-height: 100vh; min-height: 100dvh; overflow: visible; }
+  #map { grid-row: 1; height: 56vh; }
+  #panel { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .hd { padding: 16px 18px 14px; }
+  h1 { font-size: 26px; }
+  section { padding: 14px 18px; }
+  .avg > div { padding-left: 18px; }
+  .avg > div + div { padding-left: 10px; }
+  .leaflet-popup-content { width: 270px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  path.cty { transition: none; }
+  .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
+}
+</style>
+
+<div id="app">
+  <aside id="panel" aria-label="PISA 2025">
+    <div class="hd">
+      <div class="eyebrow"><span>OECD PISA 2025</span><span class="dot" aria-hidden="true"></span><span class="new" data-i18n="released"></span></div>
+      <h1 data-i18n="title"></h1>
+      <p class="lede" data-i18n="lede"></p>
+    </div>
+
+    <div class="avg" id="avg"></div>
+
+    <section class="global">
+      <h2><span data-i18n="globalTitle"></span> <span class="sub" data-i18n="globalSub"></span></h2>
+      <div id="global"></div>
+    </section>
+
+    <section>
+      <h2><span data-i18n="tbTitle"></span> <span class="sub" data-i18n="tbSub"></span></h2>
+      <div class="tb" id="tb"></div>
+    </section>
+
+    <section class="method">
+      <h2 data-i18n="methodTitle"></h2>
+      <p data-i18n="method1"></p>
+      <p data-i18n="method2"></p>
+      <p data-i18n="method3"></p>
+      <p class="src" data-i18n-html="sources"></p>
+    </section>
+  </aside>
+  <main id="map" aria-label="Map"></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var GEO = __GEOJSON__;
+  var FLAGS = __FLAGS__;
+  var D = __DATA__;            // iso -> {n:[en,hu,de], s:[m,r,sci], d:[Δm,Δr,Δsci]|null (OECD 2022→2025 change), note:''}
+  var EU27 = __EU27__;
+  var BL = __BLOCS__;          // {blocs:[{id,n,c,d,k}], trend:{years,series}, europe43:{m,r,s}}
+  var RG = __REGIONS__;        // [{iso,n:[en,hu,de],ll:[lat,lon],s:[m,r,sci],se,note}]
+  var OECD = { m: 463, r: 461, s: 482 };
+
+  var I18N = {
+    hu: {
+      released: '2026. szeptember 8.',
+      title: 'PISA 2025 · Európa',
+      lede: 'Összesített eredmény (matematika, szövegértés, természettudomány egyenlő súllyal) a kiválasztott viszonyítási alaphoz képest: {b}. Kattints egy országra vagy régióra a részletekért.',
+      baseLabel: 'Viszonyítási alap', baseName: { eu: 'EU‑27 átlag', eur: 'Európa‑43 átlag', oecd: 'OECD‑átlag' }, baseShort: { eu: 'EU‑27', eur: 'Európa‑43', oecd: 'OECD' },
+      composite: 'Összesített', math: 'Matematika', read: 'Szövegértés', sci: 'Természettudomány', sciShort: 'Term.tud.',
+      legendTitle: 'Eltérés: {b} (pont)', legendCount: 'a számok: országok száma a sávban', legendLow: 'átlag alatt', legendHigh: 'átlag felett',
+      cls: ['+30 vagy több', '+15 … +30', '+5 … +15', '±5 (átlag körül)', '−5 … −15', '−15 … −30', '−30 … −60', '−60 alatt'],
+      nodata: 'Nincs adat', regions: 'Régiók', regionsN: 'régió',
+      tbTitle: 'Legjobb és leggyengébb', tbSub: '— EU‑tagállamok, összesített pontszám',
+      top: 'Top 3 az EU‑ban', bottom: 'Alsó 3 az EU‑ban',
+      globalTitle: 'Világ‑összevetés', globalSub: '— összesített pontszám, 2025', d2225: 'Δ 2022→25',
+      globalNote: 'Súlyozatlan átlagok az OECD I.1 táblázatából. B‑S‑J‑Z csak négy kínai tartomány, nem országos adat. Az EU‑27 2022 óta 11 ponttal esett – a nagy blokkok közül a legnagyobb visszaesés.',
+      trendTitle: 'Trend 2012–2025', trendSub: '— állandó országkör, összesített',
+      trendNote: '2012‑ben az EU és az USA egy szinten állt; 2025‑ben az USA 18 ponttal, Kelet‑Ázsia 59 ponttal van az EU előtt. EU: 23 tagállam, amelynek minden ciklusban van adata (CY, LU, MT, ES nélkül).',
+      methodTitle: 'Módszertan és források',
+      method1: 'Az összesített pontszám a három PISA‑terület (matematika, szövegértés, természettudomány) egyszerű számtani átlaga – a három skála az OECD által összehasonlíthatóra kalibrált, ezért nem indokolt eltérő súlyozás. Az EU‑27 és az Európa‑43 átlag az országok összesített pontszámának súlyozatlan átlaga; az OECD‑átlag az OECD hivatalos értéke (matematika 463, szövegértés 461, természettudomány 482).',
+      method2: 'A színsávok a sorrendet mutatják; néhány pontos különbség statisztikailag nem feltétlenül szignifikáns. A * jelű országoknál az OECD szerint egy vagy több mintavételi szabvány nem teljesült. A 2022‑höz viszonyított változás az OECD I.1 táblázatának hivatalos értéke.',
+      method3: 'Régiós adatok: az OECD B2 mellékletéből, azoknál az országoknál, amelyek régiós mintát is vettek (Belgium, Egyesült Királyság, Olaszország, Spanyolország, Kazahsztán, Azerbajdzsán). Az iskolai szintű PISA‑adatok anonimizáltak és helymegjelölés nélküliek, ezért a régió a legfinomabb térképezhető szint.',
+      sources: 'Forrás: OECD, <em>PISA 2025 Results (Volume I)</em>, 2026. szept. 8. (I.1 táblázat, B2 melléklet); OECD, PISA 2012–2022 eredmények. Határok: Natural Earth 1:50m. Krím Ukrajna, Észak‑Ciprus Ciprus részeként ábrázolva.',
+      vsBase: 'a viszonyítási alaphoz', vs2022: '2022‑höz', vsNat: 'Δ orsz.', score: 'Pont', domain: 'Terület',
+      rankEU: 'EU‑rangsor', rankEurope: 'Európai rangsor', of: '/',
+      euMember: 'EU‑tagállam', nonEU: 'Nem EU‑tag', regionOf: 'régió · {c}', national: 'országos érték',
+      noteStar: '* Az OECD szerint egy vagy több mintavételi szabvány nem teljesült; az adatok óvatosan értelmezendők.',
+      notePartial: 'Ukrajna: 27‑ből 17 régió adata (2022‑ben 18 régió); az összevetés korlátozott.',
+      noteNo2022: '2022‑ben nem vett részt, trend nem számolható.',
+      noteBaku: '2022‑ben csak Baku vett részt; a trend ezért nem összevethető.',
+      noteNoChange: 'Az OECD nem közöl 2022‑höz viszonyított változást (korlátozott adatközlés).',
+      noteSE: 'Standard hiba (matek / szövegértés / term.tud.): ',
+      scopeEU: 'EU‑27', scopeAll: 'Európa', topAll: 'Top 3 Európában', bottomAll: 'Alsó 3 Európában', tbSubAll: '— mind a 43 résztvevő, összesített pontszám',
+      attribution: 'Adatok: OECD PISA 2025 · Határok: Natural Earth'
+    },
+    en: {
+      released: '8 September 2026',
+      title: 'PISA 2025 · Europe',
+      lede: 'Composite score (mathematics, reading and science, equally weighted) relative to the selected baseline: {b}. Click a country or a region for details.',
+      baseLabel: 'Baseline', baseName: { eu: 'EU‑27 average', eur: 'Europe‑43 average', oecd: 'OECD average' }, baseShort: { eu: 'EU‑27', eur: 'Europe‑43', oecd: 'OECD' },
+      composite: 'Composite', math: 'Mathematics', read: 'Reading', sci: 'Science', sciShort: 'Science',
+      legendTitle: 'Difference from the {b} (points)', legendCount: 'numbers: countries in the band', legendLow: 'below average', legendHigh: 'above average',
+      cls: ['+30 or more', '+15 to +30', '+5 to +15', '±5 (around average)', '−5 to −15', '−15 to −30', '−30 to −60', 'below −60'],
+      nodata: 'No data', regions: 'Regions', regionsN: 'regions',
+      tbTitle: 'Best and weakest', tbSub: '— EU member states, composite score',
+      top: 'Top 3 in the EU', bottom: 'Bottom 3 in the EU',
+      globalTitle: 'Global context', globalSub: '— composite score, 2025', d2225: 'Δ 2022→25',
+      globalNote: 'Unweighted averages from OECD Table I.1. B‑S‑J‑Z covers four Chinese provinces, not the country. The EU‑27 lost 11 points since 2022 — the steepest fall of any major bloc.',
+      trendTitle: 'Trend 2012–2025', trendSub: '— constant country set, composite',
+      trendNote: 'In 2012 the EU and the US were level; in 2025 the US leads the EU by 18 points and East Asia by 59. EU: the 23 member states with data in every cycle (excludes CY, LU, MT, ES).',
+      methodTitle: 'Method and sources',
+      method1: 'The composite is the simple arithmetic mean of the three PISA domains (mathematics, reading, science). The OECD calibrates the three scales to be comparable, so no differential weighting is warranted. The EU‑27 and Europe‑43 averages are unweighted means of the countries’ composite scores; the OECD average is the OECD’s official figure (mathematics 463, reading 461, science 482).',
+      method2: 'Colour bands show the ordering; some point differences are not necessarily statistically significant. For countries marked * the OECD reports that one or more sampling standards were not met. Change since 2022 is the official figure from OECD Table I.1.',
+      method3: 'Regional data: OECD Annex B2, for the countries that drew regional samples (Belgium, United Kingdom, Italy, Spain, Kazakhstan, Azerbaijan). School‑level PISA data are anonymised and carry no location, so regions are the finest level that can be mapped.',
+      sources: 'Source: OECD, <em>PISA 2025 Results (Volume I)</em>, 8 Sep 2026 (Table I.1, Annex B2); OECD, PISA 2012–2022 results. Boundaries: Natural Earth 1:50m. Crimea shown as part of Ukraine, Northern Cyprus as part of Cyprus.',
+      vsBase: 'vs baseline', vs2022: 'vs 2022', vsNat: 'Δ nat.', score: 'Score', domain: 'Domain',
+      rankEU: 'EU rank', rankEurope: 'Europe rank', of: '/',
+      euMember: 'EU member state', nonEU: 'Non‑EU', regionOf: 'region · {c}', national: 'national figure',
+      noteStar: '* The OECD reports that one or more sampling standards were not met; interpret with caution.',
+      notePartial: 'Ukraine: data for 17 of 27 regions (18 regions in 2022); comparability is limited.',
+      noteNo2022: 'Did not take part in 2022, so no trend can be computed.',
+      noteBaku: 'In 2022 only Baku took part, so the trend is not comparable.',
+      noteNoChange: 'The OECD does not report a change since 2022 (limited reporting).',
+      noteSE: 'Standard errors (maths / reading / science): ',
+      scopeEU: 'EU‑27', scopeAll: 'Europe', topAll: 'Top 3 in Europe', bottomAll: 'Bottom 3 in Europe', tbSubAll: '— all 43 participants, composite score',
+      attribution: 'Data: OECD PISA 2025 · Boundaries: Natural Earth'
+    },
+    de: {
+      released: '8. September 2026',
+      title: 'PISA 2025 · Europa',
+      lede: 'Gesamtwert (Mathematik, Lesen, Naturwissenschaften gleich gewichtet) im Vergleich zur gewählten Bezugsgröße: {b}. Für Details auf ein Land oder eine Region klicken.',
+      baseLabel: 'Bezugsgröße', baseName: { eu: 'EU‑27‑Schnitt', eur: 'Europa‑43‑Schnitt', oecd: 'OECD‑Schnitt' }, baseShort: { eu: 'EU‑27', eur: 'Europa‑43', oecd: 'OECD' },
+      composite: 'Gesamt', math: 'Mathematik', read: 'Lesen', sci: 'Naturwissenschaften', sciShort: 'Naturwiss.',
+      legendTitle: 'Abweichung vom {b} (Punkte)', legendCount: 'Zahlen: Länder in der Klasse', legendLow: 'unter dem Schnitt', legendHigh: 'über dem Schnitt',
+      cls: ['+30 oder mehr', '+15 bis +30', '+5 bis +15', '±5 (um den Schnitt)', '−5 bis −15', '−15 bis −30', '−30 bis −60', 'unter −60'],
+      nodata: 'Keine Daten', regions: 'Regionen', regionsN: 'Regionen',
+      tbTitle: 'Beste und schwächste', tbSub: '— EU‑Mitgliedstaaten, Gesamtwert',
+      top: 'Top 3 in der EU', bottom: 'Letzte 3 in der EU',
+      globalTitle: 'Weltweiter Vergleich', globalSub: '— Gesamtwert 2025', d2225: 'Δ 2022→25',
+      globalNote: 'Ungewichtete Mittelwerte aus OECD‑Tabelle I.1. B‑S‑J‑Z umfasst vier chinesische Provinzen, nicht das Land. Die EU‑27 hat seit 2022 11 Punkte verloren – der stärkste Rückgang aller großen Blöcke.',
+      trendTitle: 'Trend 2012–2025', trendSub: '— konstante Ländergruppe, Gesamtwert',
+      trendNote: '2012 lagen EU und USA gleichauf; 2025 liegen die USA 18 Punkte und Ostasien 59 Punkte vor der EU. EU: die 23 Mitgliedstaaten mit Daten in jedem Zyklus (ohne CY, LU, MT, ES).',
+      methodTitle: 'Methodik und Quellen',
+      method1: 'Der Gesamtwert ist das einfache arithmetische Mittel der drei PISA‑Bereiche (Mathematik, Lesen, Naturwissenschaften). Die OECD kalibriert die drei Skalen vergleichbar, eine unterschiedliche Gewichtung ist daher nicht angezeigt. EU‑27‑ und Europa‑43‑Schnitt sind ungewichtete Mittel der Gesamtwerte der Länder; der OECD‑Schnitt ist der offizielle OECD‑Wert (Mathematik 463, Lesen 461, Naturwissenschaften 482).',
+      method2: 'Die Farbklassen zeigen die Reihenfolge; einzelne Punktunterschiede sind nicht zwingend statistisch signifikant. Bei mit * markierten Ländern wurden laut OECD ein oder mehrere Stichprobenstandards nicht erfüllt. Die Veränderung gegenüber 2022 ist der offizielle Wert aus OECD‑Tabelle I.1.',
+      method3: 'Regionaldaten: OECD‑Anhang B2, für Länder mit regionalen Stichproben (Belgien, Vereinigtes Königreich, Italien, Spanien, Kasachstan, Aserbaidschan). PISA‑Schuldaten sind anonymisiert und ohne Ortsangabe – Regionen sind die feinste kartierbare Ebene.',
+      sources: 'Quelle: OECD, <em>PISA 2025 Results (Volume I)</em>, 8. Sept. 2026 (Tabelle I.1, Anhang B2); OECD, PISA‑Ergebnisse 2012–2022. Grenzen: Natural Earth 1:50m. Krim als Teil der Ukraine, Nordzypern als Teil Zyperns dargestellt.',
+      vsBase: 'zur Bezugsgröße', vs2022: 'zu 2022', vsNat: 'Δ Land', score: 'Punkte', domain: 'Bereich',
+      rankEU: 'EU‑Rang', rankEurope: 'Europa‑Rang', of: '/',
+      euMember: 'EU‑Mitgliedstaat', nonEU: 'Nicht‑EU', regionOf: 'Region · {c}', national: 'Landeswert',
+      noteStar: '* Laut OECD wurden ein oder mehrere Stichprobenstandards nicht erfüllt; mit Vorsicht zu interpretieren.',
+      notePartial: 'Ukraine: Daten für 17 von 27 Regionen (2022: 18 Regionen); Vergleichbarkeit eingeschränkt.',
+      noteNo2022: '2022 nicht teilgenommen, kein Trend berechenbar.',
+      noteBaku: '2022 nahm nur Baku teil; der Trend ist daher nicht vergleichbar.',
+      noteNoChange: 'Die OECD weist keine Veränderung gegenüber 2022 aus (eingeschränkte Berichterstattung).',
+      noteSE: 'Standardfehler (Mathematik / Lesen / Naturwiss.): ',
+      scopeEU: 'EU‑27', scopeAll: 'Europa', topAll: 'Top 3 in Europa', bottomAll: 'Letzte 3 in Europa', tbSubAll: '— alle 43 Teilnehmer, Gesamtwert',
+      attribution: 'Daten: OECD PISA 2025 · Grenzen: Natural Earth'
+    }
+  };
+  var LOCALE = { hu: 'hu-HU', en: 'en-GB', de: 'de-DE' };
+  var NAME_IDX = { en: 0, hu: 1, de: 2 };
+
+  // ---- derived statistics --------------------------------------------------
+  var isos = Object.keys(D);
+  isos.forEach(function (k) { var s = D[k].s; D[k].c = (s[0] + s[1] + s[2]) / 3; });
+  var EU = { m: 0, r: 0, s: 0 };
+  EU27.forEach(function (k) { EU.m += D[k].s[0]; EU.r += D[k].s[1]; EU.s += D[k].s[2]; });
+  EU.m /= EU27.length; EU.r /= EU27.length; EU.s /= EU27.length;
+  EU.c = (EU.m + EU.r + EU.s) / 3;
+  var EUR = { m: BL.europe43.m, r: BL.europe43.r, s: BL.europe43.s }; EUR.c = (EUR.m + EUR.r + EUR.s) / 3;
+  var OE = { m: OECD.m, r: OECD.r, s: OECD.s }; OE.c = (OE.m + OE.r + OE.s) / 3;
+  var BASES = { eu: EU, eur: EUR, oecd: OE };
+  var base = 'eu';                       // baseline the colours are computed against
+  try { var sb = localStorage.getItem('pisa2025-base'); if (sb && BASES[sb]) base = sb; } catch (e) {}
+  function B() { return BASES[base]; }
+  function devOf(c) { return c - B().c; }
+  var byComp = isos.slice().sort(function (a, b) { return D[b].c - D[a].c; });
+  byComp.forEach(function (k, i) { D[k].rankEurope = i + 1; });
+  var euSorted = byComp.filter(function (k) { return EU27.indexOf(k) >= 0; });
+  euSorted.forEach(function (k, i) { D[k].rankEU = i + 1; });
+  var scope = 'eu';   // widget: 'eu' = EU-27 member states, 'all' = all 43 mapped participants
+  function topList() { var src = scope === 'eu' ? euSorted : byComp; return src.slice(0, 3); }
+  function bottomList() { var src = scope === 'eu' ? euSorted : byComp; return src.slice(-3).reverse(); }  // weakest first
+  RG.forEach(function (r) { r.c = (r.s[0] + r.s[1] + r.s[2]) / 3; });
+
+  var CLASSES = ['a3', 'a2', 'a1', 'n0', 'b1', 'b2', 'b3', 'b4'];
+  function classOf(dev) {
+    if (dev >= 30) return 'a3';
+    if (dev >= 15) return 'a2';
+    if (dev >= 5) return 'a1';
+    if (dev > -5) return 'n0';
+    if (dev > -15) return 'b1';
+    if (dev > -30) return 'b2';
+    if (dev > -60) return 'b3';
+    return 'b4';
+  }
+  var counts = {};
+  function recount() {
+    CLASSES.forEach(function (c) { counts[c] = 0; });
+    isos.forEach(function (k) { D[k].cls = classOf(devOf(D[k].c)); counts[D[k].cls]++; });
+    RG.forEach(function (r) { r.cls = classOf(devOf(r.c)); });
+  }
+  recount();
+
+  // ---- language state ------------------------------------------------------
+  var lang = 'hu';
+  try { var saved = localStorage.getItem('pisa2025-lang'); if (saved && I18N[saved]) lang = saved; } catch (e) {}
+  function T(key) { return I18N[lang][key]; }
+  function TB(key) { return T(key).replace('{b}', T('baseName')[base]); }
+  function nameOf(k) { return D[k].n[NAME_IDX[lang]] + (D[k].note.charAt(0) === '*' ? '*' : ''); }
+  function rname(r) { return r.n[NAME_IDX[lang]] + (r.note === '*' ? '*' : ''); }
+  function fmt(v, d) { return new Intl.NumberFormat(LOCALE[lang], { minimumFractionDigits: d, maximumFractionDigits: d }).format(v); }
+  function signed(v, d) {
+    var r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+    var s = fmt(Math.abs(r), d);
+    if (r > 0) return '+' + s;
+    if (r < 0) return '−' + s;
+    return '±' + s;
+  }
+  function pillCls(v, thr) { return v > thr ? 'up' : (v < -thr ? 'dn' : 'n'); }
+
+  // ---- panel rendering -----------------------------------------------------
+  function renderStatic() {
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = T(el.getAttribute('data-i18n')); });
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) { el.innerHTML = T(el.getAttribute('data-i18n-html')); });
+    document.querySelector('.lede').textContent = TB('lede');
+    document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang)); });
+    document.documentElement.lang = lang;
+    document.title = T('title').replace(' · ', ' ') + (lang === 'hu' ? '-térkép' : (lang === 'de' ? '-Karte' : ' map'));
+  }
+  function renderAvg() {
+    var el = document.getElementById('avg'), b = B();
+    el.innerHTML =
+      '<div class="main"><div class="k">' + T('baseName')[base] + ' · ' + T('composite').toLowerCase() + '</div><div class="v big">' + fmt(b.c, 1) + '</div></div>' +
+      '<div><div class="k">' + T('math') + '</div><div class="v">' + fmt(b.m, 1) + '</div></div>' +
+      '<div><div class="k">' + T('read') + '</div><div class="v">' + fmt(b.r, 1) + '</div></div>' +
+      '<div><div class="k">' + T('sciShort') + '</div><div class="v">' + fmt(b.s, 1) + '</div></div>';
+  }
+  function renderLegend() {
+    var el = document.getElementById('legend');
+    if (!el) return;
+    var order = ['b4', 'b3', 'b2', 'b1', 'n0', 'a1', 'a2', 'a3'];
+    var breaks = ['−60', '−30', '−15', '−5', '+5', '+15', '+30'];
+    var html = '<div class="lg-h"><span class="t">' + TB('legendTitle') + '</span>' +
+      '<span class="lg-base" role="group" aria-label="' + T('baseLabel') + '">' +
+      ['eu', 'eur', 'oecd'].map(function (b) { return '<button type="button" data-base="' + b + '" aria-pressed="' + (base === b) + '">' + T('baseShort')[b] + '</button>'; }).join('') + '</span></div>' +
+      '<div class="lg-body"><div class="lg-ramp"><div class="lg-bar">';
+    order.forEach(function (c) { html += '<span class="' + c + '" title="' + T('cls')[CLASSES.indexOf(c)] + '">' + counts[c] + '</span>'; });
+    html += '</div><div class="lg-ticks">';
+    breaks.forEach(function (b, i) { html += '<span style="left:' + ((i + 1) / 8 * 100) + '%">' + b + '</span>'; });
+    html += '</div><div class="lg-ends"><span>◀ ' + T('legendLow') + '</span><span class="n">' + T('legendCount') + '</span><span>' + T('legendHigh') + ' ▶</span></div></div>' +
+      '<div class="lg-side"><div class="lg-nd"><span class="sw"></span><span class="lb">' + T('nodata') + '</span></div>' +
+      '<button type="button" class="lg-rg" aria-pressed="' + showRegions + '"><span class="dot"></span>' + T('regions') + ' · ' + RG.length + '</button></div></div>';
+    el.innerHTML = html;
+    el.querySelectorAll('.lg-base button').forEach(function (b) {
+      b.addEventListener('click', function () { setBase(b.getAttribute('data-base')); });
+    });
+    el.querySelector('.lg-rg').addEventListener('click', function () { setRegions(!showRegions); });
+  }
+  function rowHtml(k, rank) {
+    var d = D[k], dev = devOf(d.c);
+    return '<button type="button" class="row" data-iso="' + k + '">' +
+      '<span class="rk">' + rank + '</span>' +
+      '<img class="fl" src="' + FLAGS[k] + '" alt="">' +
+      '<span class="nm">' + nameOf(k) + (scope === 'all' && EU27.indexOf(k) < 0 ? ' <small>' + T('nonEU') + '</small>' : '') + '</span>' +
+      '<span class="sc">' + fmt(d.c, 1) + '</span>' +
+      '<span class="pill ' + pillCls(dev, 5) + '">' + signed(dev, 1) + '</span>' +
+      '</button>';
+  }
+  function renderTB() {
+    var el = document.getElementById('tb');
+    var rk = function (k) { return scope === 'eu' ? D[k].rankEU : D[k].rankEurope; };
+    var html = '<div class="scope" role="group"><button type="button" data-scope="eu" aria-pressed="' + (scope === 'eu') + '">' + T('scopeEU') + '</button>' +
+      '<button type="button" data-scope="all" aria-pressed="' + (scope === 'all') + '">' + T('scopeAll') + ' · ' + isos.length + '</button></div>';
+    html += '<div><h3><span class="mk up"></span>' + T(scope === 'eu' ? 'top' : 'topAll') + '</h3><div class="rows">';
+    topList().forEach(function (k) { html += rowHtml(k, rk(k)); });
+    html += '</div></div><div><h3><span class="mk dn"></span>' + T(scope === 'eu' ? 'bottom' : 'bottomAll') + '</h3><div class="rows">';
+    bottomList().forEach(function (k) { html += rowHtml(k, rk(k)); });
+    html += '</div></div>';
+    el.innerHTML = html;
+    document.querySelector('[data-i18n="tbSub"]').textContent = T(scope === 'eu' ? 'tbSub' : 'tbSubAll');
+    el.querySelectorAll('.row').forEach(function (b) {
+      var k = b.getAttribute('data-iso');
+      b.addEventListener('click', function () { focusCountry(k); });
+      b.addEventListener('mouseenter', function () { setHover(k, true); });
+      b.addEventListener('mouseleave', function () { setHover(k, false); });
+    });
+    el.querySelectorAll('.scope button').forEach(function (b) {
+      b.addEventListener('click', function () { scope = b.getAttribute('data-scope'); renderTB(); });
+    });
+  }
+
+  // ---- global context: dot plot of blocs + trend lines ----------------------
+  function renderGlobal() {
+    var el = document.getElementById('global');
+    var SHORT = { cn: ['B‑S‑J‑Z (CN)', 'B‑S‑J‑Z (CN)', 'B‑S‑J‑Z (CN)'], ea: ['East Asia 6', 'Kelet‑Ázsia 6', 'Ostasien 6'], ang: ['Anglosphere 5', 'Angolszász 5', 'Anglosphäre 5'], us: ['United States', 'Egyesült Államok', 'USA'], oecd: ['OECD average', 'OECD‑átlag', 'OECD‑Schnitt'], eu: ['EU‑27', 'EU‑27', 'EU‑27'], eur: ['Europe 43', 'Európa 43', 'Europa 43'], sea: ['SE Asia 7', 'DK‑Ázsia 7', 'SO‑Asien 7'], me: ['Middle East 8', 'Közel‑Kelet 8', 'Naher Osten 8'], la: ['Latin America 13', 'Latin‑Amerika 13', 'Lateinamerika 13'], ca: ['Central Asia 4', 'Közép‑Ázsia 4', 'Zentralasien 4'], af: ['Africa 5', 'Afrika 5', 'Afrika 5'] };
+    var W = 316, LW = 112, VW = 40, DW = 42, X0 = LW, XW = W - LW - VW - DW, RH = 21;
+    var lo = 330, hi = 600;
+    var x = function (v) { return X0 + (v - lo) / (hi - lo) * XW; };
+    var euC = EU.c;
+    var h = '<svg class="dots" viewBox="0 0 ' + W + ' ' + (BL.blocs.length * RH + 22) + '" width="' + W + '" role="img" aria-label="' + T('globalTitle') + '">';
+    [400, 500].forEach(function (v) {
+      h += '<line class="grid" x1="' + x(v) + '" y1="4" x2="' + x(v) + '" y2="' + (BL.blocs.length * RH + 4) + '"/>' +
+        '<text class="tick" x="' + x(v) + '" y="' + (BL.blocs.length * RH + 18) + '" text-anchor="middle">' + v + '</text>';
+    });
+    h += '<line class="ref" x1="' + x(euC) + '" y1="2" x2="' + x(euC) + '" y2="' + (BL.blocs.length * RH + 6) + '"/>';
+    BL.blocs.forEach(function (b, i) {
+      var cy = i * RH + 14, isEU = b.id === 'eu', isEur = b.id === 'eur';
+      h += '<text class="lbl' + (isEU ? ' eu' : '') + '" x="' + (LW - 8) + '" y="' + (cy + 4) + '" text-anchor="end">' + (SHORT[b.id] || b.n)[NAME_IDX[lang]] + '<title>' + b.n[NAME_IDX[lang]] + '</title></text>';
+      h += '<line class="stem" x1="' + x(euC) + '" y1="' + cy + '" x2="' + x(b.c) + '" y2="' + cy + '"/>';
+      h += '<circle class="dot' + (isEU ? ' eu' : (isEur ? ' eur' : '')) + '" cx="' + x(b.c) + '" cy="' + cy + '" r="' + (isEU ? 5 : 4) + '"><title>' + b.n[NAME_IDX[lang]] + ': ' + fmt(b.c, 1) + '</title></circle>';
+      h += '<text class="val" x="' + (W - DW - 2) + '" y="' + (cy + 4) + '" text-anchor="end">' + fmt(b.c, 1) + '</text>';
+      h += '<text class="dlt ' + (b.d === null ? 'n' : pillCls(b.d, 2)) + '" x="' + (W - 1) + '" y="' + (cy + 4) + '" text-anchor="end">' + (b.d === null ? '·' : signed(b.d, 1)) + '</text>';
+    });
+    h += '</svg>';
+    h += '<div class="chart-foot"><span>' + T('composite') + ' 2025</span><span>' + T('d2225') + '</span></div>';
+    h += '<p class="note">' + T('globalNote') + '</p>';
+    // trend
+    var tr = BL.trend, TW = 316, TH = 150, PL = 30, PR = 104, PT = 10, PB = 22;
+    var ylo = 460, yhi = 545;
+    var tx = function (y) { return PL + (y - 2012) / (2025 - 2012) * (TW - PL - PR); };
+    var ty = function (v) { return PT + (yhi - v) / (yhi - ylo) * (TH - PT - PB); };
+    h += '<h2 class="sub-h"><span>' + T('trendTitle') + '</span> <span class="sub">' + T('trendSub') + '</span></h2>';
+    h += '<svg class="trend" viewBox="0 0 ' + TW + ' ' + TH + '" width="' + TW + '" role="img" aria-label="' + T('trendTitle') + '">';
+    [470, 500, 530].forEach(function (v) { h += '<line class="grid" x1="' + PL + '" y1="' + ty(v) + '" x2="' + (TW - PR) + '" y2="' + ty(v) + '"/><text class="tick" x="' + (PL - 6) + '" y="' + (ty(v) + 3.5) + '" text-anchor="end">' + v + '</text>'; });
+    tr.years.forEach(function (y) { h += '<text class="tick" x="' + tx(y) + '" y="' + (TH - 6) + '" text-anchor="middle">' + y + '</text>'; });
+    var lab = tr.series.map(function (s) { return { s: s, y: ty(s.v[s.v.length - 1]) }; }).sort(function (a, b) { return a.y - b.y; });
+    for (var i = 1; i < lab.length; i++) { if (lab[i].y - lab[i - 1].y < 12) lab[i].y = lab[i - 1].y + 12; }
+    tr.series.forEach(function (s) {
+      var pts = s.v.map(function (v, i) { return tx(tr.years[i]) + ',' + ty(v); }).join(' ');
+      h += '<polyline class="ln ' + s.id + '" points="' + pts + '"/>';
+      s.v.forEach(function (v, i) { h += '<circle class="pt ' + s.id + '" cx="' + tx(tr.years[i]) + '" cy="' + ty(v) + '" r="2.6"><title>' + s.n[NAME_IDX[lang]] + ' ' + tr.years[i] + ': ' + fmt(v, 1) + '</title></circle>'; });
+    });
+    lab.forEach(function (l) {
+      var s = l.s, last = s.v[s.v.length - 1];
+      var tl = s.id === 'eu' ? 'EU (23)' : (SHORT[s.id] || s.n)[NAME_IDX[lang]];
+      h += '<text class="ln-lbl ' + s.id + '" x="' + (TW - PR + 6) + '" y="' + (l.y + 3.5) + '">' + tl + ' ' + fmt(last, 0) + '</text>';
+    });
+    h += '</svg>';
+    h += '<p class="note">' + T('trendNote') + '</p>';
+    el.innerHTML = h;
+  }
+
+  // ---- popups ------------------------------------------------------------------
+  function domainRows(scores, dlt, thirdLabel, thirdVals) {
+    var b = B(), keys = ['math', 'read', 'sci'], bv = [b.m, b.r, b.s];
+    var h = '<table class="pp-t"><thead><tr><th>' + T('domain') + '</th><th>' + T('score') + '</th><th>Δ ' + T('baseShort')[base] + '</th><th>' + thirdLabel + '</th></tr></thead><tbody>';
+    keys.forEach(function (k, i) {
+      var sc = scores[i], dev = sc - bv[i], tv = thirdVals ? thirdVals[i] : null;
+      h += '<tr><td>' + T(k) + '</td><td class="sc">' + fmt(sc, 0) + '</td>' +
+        '<td class="' + pillCls(dev, 5) + '">' + signed(dev, 0) + '</td>' +
+        '<td class="' + (tv === null ? 'n' : pillCls(tv, 3)) + '">' + (tv === null ? '–' : signed(tv, 0)) + '</td></tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  function popupHtml(k) {
+    var d = D[k], isEU = EU27.indexOf(k) >= 0, dev = devOf(d.c);
+    var h = '<div class="pp-h"><img src="' + FLAGS[k] + '" alt=""><div class="t"><div class="nm">' + nameOf(k) + '</div>' +
+      '<div class="tag">' + (isEU ? T('euMember') : T('nonEU')) + '</div></div></div>';
+    h += '<div class="pp-hero"><div><div class="lbl">' + T('composite') + '</div><div class="big">' + fmt(d.c, 1) + '</div></div>' +
+      '<div class="dv"><span class="pill ' + pillCls(dev, 5) + '">' + signed(dev, 1) + ' · ' + T('baseShort')[base] + '</span>' +
+      '<span class="rank">' + (isEU ? T('rankEU') + ' ' + d.rankEU + T('of') + EU27.length + ' · ' : '') + T('rankEurope') + ' ' + d.rankEurope + T('of') + isos.length + '</span></div></div>';
+    h += domainRows(d.s, null, 'Δ 2022', d.d);
+    var notes = [];
+    if (d.note === '*' || d.note === '*nochange') notes.push(T('noteStar'));
+    if (d.note === '*nochange') notes.push(T('noteNoChange'));
+    if (d.note === 'partial') notes.push(T('notePartial'));
+    if (d.note === 'no2022') notes.push(T('noteNo2022'));
+    if (d.note === 'baku2022') notes.push(T('noteBaku'));
+    if (notes.length) h += '<div class="pp-f">' + notes.map(function (n) { return '<p>' + n + '</p>'; }).join('') + '</div>';
+    return h;
+  }
+  function regionPopupHtml(r) {
+    var nat = D[r.iso], dev = devOf(r.c);
+    var h = '<div class="pp-h"><img src="' + FLAGS[r.iso] + '" alt=""><div class="t"><div class="nm">' + rname(r) + '</div>' +
+      '<div class="tag">' + T('regionOf').replace('{c}', nameOf(r.iso)) + '</div></div></div>';
+    h += '<div class="pp-hero"><div><div class="lbl">' + T('composite') + '</div><div class="big">' + fmt(r.c, 1) + '</div></div>' +
+      '<div class="dv"><span class="pill ' + pillCls(dev, 5) + '">' + signed(dev, 1) + ' · ' + T('baseShort')[base] + '</span>' +
+      '<span class="rank">' + T('national') + ': ' + fmt(nat.c, 1) + ' (' + signed(r.c - nat.c, 1) + ')</span></div></div>';
+    h += domainRows(r.s, null, T('vsNat'), [r.s[0] - nat.s[0], r.s[1] - nat.s[1], r.s[2] - nat.s[2]]);
+    var notes = [T('noteSE') + r.se.join(' / ')];
+    if (r.note === '*') notes.unshift(T('noteStar'));
+    h += '<div class="pp-f">' + notes.map(function (n) { return '<p>' + n + '</p>'; }).join('') + '</div>';
+    return h;
+  }
+
+  // ---- map -----------------------------------------------------------------
+  var map = L.map('map', {
+    zoomControl: true, attributionControl: true, minZoom: 3, maxZoom: 8, zoomSnap: 0.1, zoomDelta: 0.5,
+    wheelPxPerZoomLevel: 90, maxBounds: [[27, -32], [74, 80]], maxBoundsViscosity: 0.7
+  });
+  map.attributionControl.setPrefix(false);
+  var layers = {};
+  var activeIso = null, activeRegion = null;
+  var geo = L.geoJSON(GEO, {
+    style: function (f) {
+      var k = f.properties.iso, d = D[k];
+      return { className: 'cty ' + (d ? d.cls + ' has-data' : 'nd'), weight: 0.8, fillOpacity: 1 };
+    },
+    onEachFeature: function (f, layer) {
+      var k = f.properties.iso;
+      if (!D[k]) return;
+      layers[k] = layer;
+      layer.on('mouseover', function () { setHover(k, true); });
+      layer.on('mouseout', function () { setHover(k, false); });
+      layer.on('click', function (e) { openFor(k, e.latlng); });
+      layer.bindTooltip(function () { return '<b>' + nameOf(k) + '</b> · ' + fmt(D[k].c, 1) + ' (' + signed(devOf(D[k].c), 1) + ')'; }, { sticky: true, direction: 'top', opacity: 1 });
+    }
+  }).addTo(map);
+  function el(k) { return layers[k] && layers[k].getElement ? layers[k].getElement() : null; }
+  function setHover(k, on) {
+    var e = el(k); if (!e) return;
+    if (on) { e.classList.add('is-hover'); layers[k].bringToFront(); }
+    else { e.classList.remove('is-hover'); }
+    document.querySelectorAll('.row[data-iso="' + k + '"]').forEach(function (b) { b.classList.toggle('is-active', on); });
+  }
+  function setActive(k) {
+    if (activeIso && el(activeIso)) el(activeIso).classList.remove('is-active');
+    activeIso = k;
+    if (k && el(k)) { el(k).classList.add('is-active'); layers[k].bringToFront(); }
+  }
+  var popup = L.popup({ maxWidth: 320, minWidth: 260, autoPanPadding: [24, 24], closeButton: true });
+  function openFor(k, latlng) {
+    setActive(k); activeRegion = null;
+    popup.setLatLng(latlng || layers[k].getBounds().getCenter()).setContent(popupHtml(k)).openOn(map);
+  }
+  map.on('popupclose', function () { setActive(null); activeRegion = null; });
+  function focusCountry(k) {
+    var p = layers[k].feature.properties;
+    var b = p.bb ? L.latLngBounds(p.bb) : layers[k].getBounds();
+    map.flyToBounds(b, { padding: [40, 40], maxZoom: 5.5, duration: 0.7 });
+    map.once('moveend', function () { openFor(k, anchorOf(k)); });
+  }
+  function anchorOf(k) {
+    var p = layers[k].feature.properties;
+    return p.c ? L.latLng(p.c[0], p.c[1]) : layers[k].getBounds().getCenter();
+  }
+
+  // ---- regions (sub-national results, OECD Annex B2) -------------------------
+  var showRegions = true;
+  try { var sr = localStorage.getItem('pisa2025-regions'); if (sr === '0') showRegions = false; } catch (e) {}
+  // Regions get their own pane above the country polygons, so bringToFront() on a hovered country never covers them.
+  map.createPane('regions').style.zIndex = 450;
+  var regionLayer = L.layerGroup();
+  RG.forEach(function (r) {
+    var m = L.circleMarker(r.ll, { pane: 'regions', radius: 6, className: 'rg ' + r.cls, weight: 1.2, fillOpacity: 1, bubblingMouseEvents: false });
+    r.marker = m;
+    m.on('mouseover', function () { var e = m.getElement(); if (e) e.classList.add('is-hover'); });
+    m.on('mouseout', function () { var e = m.getElement(); if (e) e.classList.remove('is-hover'); });
+    m.on('click', function () { openRegion(r); });
+    m.bindTooltip(function () { return '<b>' + rname(r) + '</b> · ' + fmt(r.c, 1) + ' (' + signed(devOf(r.c), 1) + ')'; }, { sticky: true, direction: 'top', opacity: 1 });
+    regionLayer.addLayer(m);
+  });
+  function openRegion(r) {
+    setActive(null); activeRegion = r;
+    popup.setLatLng(r.ll).setContent(regionPopupHtml(r)).openOn(map);
+  }
+  function setRegions(on) {
+    showRegions = on;
+    if (on) regionLayer.addTo(map); else map.removeLayer(regionLayer);
+    try { localStorage.setItem('pisa2025-regions', on ? '1' : '0'); } catch (e) {}
+    var b = document.querySelector('.lg-rg'); if (b) b.setAttribute('aria-pressed', String(on));
+  }
+  if (showRegions) regionLayer.addTo(map);
+
+  // ---- baseline switching ----------------------------------------------------
+  function setBase(b) {
+    if (!BASES[b] || b === base) return;
+    base = b;
+    try { localStorage.setItem('pisa2025-base', b); } catch (e) {}
+    recount();
+    isos.forEach(function (k) {
+      var e = el(k); if (!e) return;
+      CLASSES.forEach(function (c) { e.classList.remove(c); });
+      e.classList.add(D[k].cls);
+    });
+    RG.forEach(function (r) {
+      var e = r.marker.getElement(); if (!e) return;
+      CLASSES.forEach(function (c) { e.classList.remove(c); });
+      e.classList.add(r.cls);
+    });
+    renderAll();
+  }
+
+  // Language switcher and legend live on the map as Leaflet controls.
+  var LangCtl = L.Control.extend({
+    onAdd: function () {
+      var c = L.DomUtil.create('div', 'lang ov');
+      c.setAttribute('role', 'group'); c.setAttribute('aria-label', 'Language');
+      c.innerHTML = '<button type="button" data-lang="hu" aria-pressed="true">HU</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="de" aria-pressed="false">DE</button>';
+      L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c);
+      return c;
+    }
+  });
+  var LegendCtl = L.Control.extend({
+    onAdd: function () {
+      var c = L.DomUtil.create('div', 'lg ov');
+      c.id = 'legend';
+      L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c);
+      return c;
+    }
+  });
+  new LangCtl({ position: 'topright' }).addTo(map);
+  new LegendCtl({ position: 'bottomleft' }).addTo(map);
+
+  function euBounds() {
+    var b = null;
+    EU27.forEach(function (k) {
+      var p = layers[k] && layers[k].feature.properties;
+      if (!p || !p.bb) return;
+      var lb = L.latLngBounds(p.bb);
+      b = b ? b.extend(lb) : lb;
+    });
+    return b || L.latLngBounds([[34.5, -11], [71.5, 41]]);
+  }
+  function fitEU() {
+    var small = map.getSize().x < 700;
+    map.fitBounds(euBounds(), { paddingTopLeft: [12, small ? 12 : 16], paddingBottomRight: [12, small ? 100 : 104] });
+  }
+  fitEU();
+  var currentAttr = '';
+
+  // ---- language switching --------------------------------------------------
+  function renderAll() {
+    renderStatic(); renderAvg(); renderLegend(); renderGlobal(); renderTB();
+    if (currentAttr) map.attributionControl.removeAttribution(currentAttr);
+    currentAttr = T('attribution');
+    map.attributionControl.addAttribution(currentAttr);
+    if (map.hasLayer(popup)) {
+      if (activeRegion) popup.setContent(regionPopupHtml(activeRegion));
+      else if (activeIso) popup.setContent(popupHtml(activeIso));
+    }
+  }
+  document.querySelectorAll('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      lang = b.getAttribute('data-lang');
+      try { localStorage.setItem('pisa2025-lang', lang); } catch (e) {}
+      renderAll();
+    });
+  });
+  renderAll();
+  window.__pisa = { map: map, layers: layers, focusCountry: focusCountry, openFor: openFor, anchorOf: anchorOf, fitEU: fitEU, setBase: setBase, setRegions: setRegions, openRegion: openRegion, regions: RG };
+})();
+</script>
