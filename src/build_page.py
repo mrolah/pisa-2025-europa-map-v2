@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from pisa_data import DATA, EU27  # noqa: E402
+from world_data import WORLD  # noqa: E402
 
 try:
     from shapely.geometry import shape
@@ -24,16 +25,26 @@ except ImportError:  # shapely is only needed to derive mainland bbox/anchor per
 SRC, DATA_DIR, DOCS, DIST = ROOT / 'src', ROOT / 'data', ROOT / 'docs', ROOT / 'dist'
 LEAFLET_JS = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'
 
-geo = json.loads((DATA_DIR / 'europe.geojson').read_text(encoding='utf-8'))
+geo = json.loads((DATA_DIR / 'world.geojson').read_text(encoding='utf-8'))
 flags = json.loads((DATA_DIR / 'flags.json').read_text(encoding='utf-8'))
 leaflet_css = (DATA_DIR / 'leaflet.css').read_text(encoding='utf-8')
 leaflet_css = re.sub(r'\s*/\*.*?\*/', '', leaflet_css, flags=re.S)  # strip comments (image refs are unused)
 
+# Scores for the non-European participants come straight from the OECD table (name|sci|read|math|cps|dsci|dread|dmath).
+WT = {}
+for line in (DATA_DIR / 'oecd_table_i1_world.txt').read_text(encoding='utf-8').splitlines():
+    p = line.strip().split('|')
+    if len(p) < 8:
+        continue
+    num = lambda x: None if x in ('m', '') else int(x)
+    WT[p[0]] = {'s': [num(p[3]), num(p[2]), num(p[1])], 'd': [num(p[7]), num(p[6]), num(p[5])]}
+
+HAS_DATA = set(DATA) | set(WORLD)
 # Per-country mainland bbox + anchor point (largest polygon) so that e.g. the Canary Islands
 # or Svalbard do not drag the "zoom to country" view out to sea.
 for f in geo['features']:
     iso = f['properties']['iso']
-    if iso not in DATA:
+    if iso not in HAS_DATA:
         f['properties'] = {'iso': iso}
         continue
     if 'bb' in f['properties'] and 'c' in f['properties']:
@@ -63,6 +74,13 @@ for iso, (en, hu, de, s25, s22, note) in DATA.items():
     if iso == 'AL' and d is None:
         note = '*nochange'
     data[iso] = {'n': [en, hu, de], 's': list(s25), 'd': list(d) if d else None, 'note': note}
+for iso, (oname, en, hu, de, note, pt) in WORLD.items():
+    w = WT[oname]
+    assert None not in w['s'], f'{iso}: no composite'
+    d = None if None in w['d'] else w['d']
+    data[iso] = {'n': [en, hu, de], 's': w['s'], 'd': d, 'note': note}
+    if pt:
+        data[iso]['pt'] = list(pt)
 
 tpl = (SRC / 'template.html').read_text(encoding='utf-8')
 page = (tpl
@@ -71,6 +89,7 @@ page = (tpl
         .replace('__FLAGS__', json.dumps(flags, separators=(',', ':')))
         .replace('__DATA__', json.dumps(data, ensure_ascii=False, separators=(',', ':')))
         .replace('__EU27__', json.dumps(EU27, separators=(',', ':')))
+        .replace('__EUROPE__', json.dumps(list(DATA), separators=(',', ':')))
         .replace('__BLOCS__', json.dumps(json.loads((DATA_DIR / 'blocs.json').read_text(encoding='utf-8')), ensure_ascii=False, separators=(',', ':')))
         .replace('__REGIONS__', (DATA_DIR / 'regions.json').read_text(encoding='utf-8').strip()))
 assert '__' not in page.split('<div id="app">')[0][-200:], 'unfilled placeholder'
@@ -83,8 +102,8 @@ head, body = page.split('<div id="app">', 1)
 standalone = (
     '<!doctype html>\n<html lang="hu">\n<head>\n<meta charset="utf-8">\n'
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-    '<meta name="description" content="PISA 2025 – interaktív térkép: az európai országok összesített '
-    'eredménye az EU-27 átlagához képest (OECD, 2026. szeptember 8.).">\n'
+    '<meta name="description" content="PISA 2025 – interaktív térkép: Európa és a világ 90 résztvevőjének összesített '
+    'eredménye az EU-27, az Európa-43 vagy az OECD átlagához képest, régiókkal (OECD, 2026. szeptember 8.).">\n'
     + head + '</head>\n<body>\n<div id="app">' + body + '\n</body>\n</html>\n'
 )
 (DOCS / 'index.html').write_text(standalone, encoding='utf-8')

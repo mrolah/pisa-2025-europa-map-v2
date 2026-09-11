@@ -1,6 +1,6 @@
 # PISA 2025 · Európa-térkép
 
-Interaktív térkép az OECD **PISA 2025** eredményeiről (megjelent: 2026. szeptember 8.). A 43 európai és tágabb európai résztvevő **összesített pontszámát** (matematika, szövegértés, természettudomány egyenlő súllyal) mutatja egy **váltható viszonyítási alaphoz** képest (EU‑27 átlag · Európa‑43 átlag · OECD‑átlag), országonkénti részletekkel, **51 régiós ponttal** (OECD B2 melléklet), **világ‑blokk összevetéssel és 2012–2025 trenddel**, Top 3 / Alsó 3 widgettel, magyar / angol / német felülettel.
+Interaktív térkép az OECD **PISA 2025** eredményeiről (megjelent: 2026. szeptember 8.). **Európa 43 résztvevője és a világ mind a 90 résztvevője** (Európa / Világ nézetváltó) **összesített pontszámmal** (matematika, szövegértés, természettudomány egyenlő súllyal) egy **váltható viszonyítási alaphoz** képest (EU‑27 átlag · Európa‑43 átlag · OECD‑átlag), országonkénti részletekkel, **51 régiós ponttal** (OECD B2 melléklet), **világ‑blokk összevetéssel és 2012–2025 trenddel**, Top 3 / Alsó 3 widgettel (EU‑27 / Európa / Világ), magyar / angol / német felülettel.
 
 **Élő térkép (GitHub Pages):** https://mrolah.github.io/pisa-2025-europa-map/
 
@@ -13,6 +13,7 @@ Interaktív térkép az OECD **PISA 2025** eredményeiről (megjelent: 2026. sze
 - **Színezés:** eltérés az EU‑27 súlyozatlan átlagától (2025-ben 462,5 pont), 8 osztályban: ≥ +30 · +15…+30 · +5…+15 · ±5 · −5…−15 · −15…−30 · −30…−60 · < −60, plus „nincs adat". Diverging kék (átlag felett) / narancs‑vörös (átlag alatt) skála, semleges szürke középpel; a színlépcsők világos és sötét témára is ellenőrzöttek.
 - **Popup** minden országnál: összesített pontszám, eltérés az EU‑átlagtól, EU‑ és európai rangsor, a három terület pontszáma, Δ az EU‑átlaghoz és Δ 2022‑höz (az OECD hivatalos értéke), adatminőségi megjegyzések.
 - **Top 3 / Alsó 3 widget:** alapból az EU‑27 tagállamok, váltóval mind a 43 résztvevő (ekkor pl. az Egyesült Királyság a 2.).
+- **Európa / Világ nézet:** a bal felső váltóval a térkép kizoomol, és mind a 90 PISA‑résztvevő színezve látszik (Uzbegisztán csak természettudományból közölt adatot, ezért nem szerepel). A poligon nélküli egységek — B‑S‑J‑Z (4 kínai tartomány), Hongkong, Makaó, Szingapúr, Mauritius, Dusanbe, Kurdisztán régió — pontként, a popupban külön jelölve.
 - **Viszonyítási alap váltó** a legendben (EU‑27 / Európa‑43 / OECD): a színezés, a popupok és a widget eltérései átszámolódnak.
 - **Régiók:** 51 országon belüli egység (Belgium közösségei, Spanyolország autonóm közösségei, Olaszország makrorégiói, az Egyesült Királyság országrészei, Kazahsztán régiói, Baku) pontként, saját popuppal és az országos értékhez viszonyított eltéréssel. A PISA iskolai szintű adatai anonimizáltak és helymegjelölés nélküliek, ezért a régió a legfinomabb térképezhető szint.
 - **Világ‑összevetés** az oldalsávban: blokkátlagok (Kelet‑Ázsia 6, USA, angolszász országok, OECD, EU‑27, Európa‑43, Délkelet‑Ázsia, Közel‑Kelet, Latin‑Amerika, Közép‑Ázsia, Afrika) és a 2012–2025 trend állandó országkörön.
@@ -44,16 +45,17 @@ docs/index.html        kész, önálló oldal (GitHub Pages ezt szolgálja ki) �
 docs/preview.png       képernyőkép a README-hez
 dist/artifact.html     ugyanez <html>/<head>/<body> nélkül – Claude‑artifactként való újrapublikáláshoz
 src/template.html      az oldal forrása (HTML + CSS + JS, i18n szótárral); a __PLACEHOLDER__‑eket a build tölti ki
-src/pisa_data.py       országadatok (nevek 3 nyelven, 2025 és 2022 pontszámok, megjegyzések)
+src/pisa_data.py       a 43 európai résztvevő (nevek 3 nyelven, 2025 és 2022 pontszámok, megjegyzések)
+src/world_data.py      a további 47 résztvevő (nevek 3 nyelven, pont‑egységek koordinátái); pontszámok a world táblából
 src/blocs.py, src/history.py  blokkátlagok és trend számítása (data/blocs_raw.json)
 src/build_page.py      összeállítja docs/index.html és dist/artifact.html fájlt   ← ezt kell futtatni
-src/build_geo.py       (opcionális) Natural Earth → data/europe.geojson újragenerálása
+src/build_geo.py       (opcionális) Natural Earth → data/world.geojson újragenerálása
 src/make_flags.py      (opcionális) flag-icons → data/flags.json újragenerálása
 data/oecd_table_i1.json  OECD I.1 tábla: pontszámok + hivatalos 2022→2025 változás (a build ellenőrzi az egyezést)
 data/oecd_table_i1_world.txt  a teljes I.1 tábla (91 résztvevő + OECD‑átlag) a blokkátlagokhoz
 data/blocs.json        blokkátlagok és 2012–2025 trend (src/blocs.py + src/history.py állítja elő)
 data/regions.json      51 régió pontszámai (OECD B2 melléklet, I.B2.1–3 táblák) + horgonypontok
-data/europe.geojson    egyszerűsített határok, országonként előszámolt szárazföldi bbox + horgonypont
+data/world.geojson     határok az egész világra (Európa 30%, a többi 10% egyszerűsítés, országonként egyesítve), előszámolt szárazföldi bbox + horgonypont
 data/flags.json        zászlók data‑URI‑ként
 data/leaflet.css       Leaflet 1.9.4 CSS (beágyazásra)
 ```
@@ -73,7 +75,7 @@ Határok vagy zászlók újragenerálása (ritkán kell):
 ```bash
 pip install shapely playwright && playwright install chromium
 npm install flag-icons mapshaper
-python src/build_geo.py      # Natural Earth letöltés, Krím/Ciprus korrekció, vágás, egyszerűsítés
+python src/build_geo.py      # Natural Earth letöltés, Krím/Ciprus korrekció, kétszintű egyszerűsítés
 python src/make_flags.py     # zászlók data‑URI‑ba
 python src/build_page.py
 ```
@@ -87,6 +89,6 @@ python src/build_page.py
 
 ## English summary
 
-Interactive Leaflet map of the OECD **PISA 2025** results (released 8 September 2026) for 43 European and wider‑European participants. Countries are coloured by their **composite score** (mean of mathematics, reading and science) relative to a **switchable baseline** — the unweighted EU‑27 average (462.5 in 2025), the Europe‑43 average (447.9) or the OECD average (468.7); each popup shows the three domain scores, the gap to the baseline, the OECD's official change since 2022, and EU / Europe rank. **51 sub‑national regions** (OECD Annex B2) are shown as points, and a side panel puts the EU in **global context** (bloc averages and a 2012–2025 trend on a constant country set). Top 3 / bottom 3 widget (EU‑27 or all participants), legend and HU/EN/DE switcher on the map, light and dark themes.
+Interactive Leaflet map of the OECD **PISA 2025** results (released 8 September 2026) — 43 European participants in the home view, all 90 participants in the World view. Countries are coloured by their **composite score** (mean of mathematics, reading and science) relative to a **switchable baseline** — the unweighted EU‑27 average (462.5 in 2025), the Europe‑43 average (447.9) or the OECD average (468.7); each popup shows the three domain scores, the gap to the baseline, the OECD's official change since 2022, and EU / Europe rank. **51 sub‑national regions** (OECD Annex B2) are shown as points, and a side panel puts the EU in **global context** (bloc averages and a 2012–2025 trend on a constant country set). Top 3 / bottom 3 widget (EU‑27 or all participants), legend and HU/EN/DE switcher on the map, light and dark themes.
 
 Build with `python src/build_page.py` (standard library only); `docs/index.html` is the standalone page served by GitHub Pages. Data: OECD PISA 2025 Results Vol. I, Table I.1; boundaries: Natural Earth (public domain); flags: flag‑icons (MIT); map engine: Leaflet (BSD‑2). Code: MIT.

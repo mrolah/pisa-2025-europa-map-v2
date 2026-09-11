@@ -16,7 +16,8 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 FL = ROOT / 'node_modules' / 'flag-icons' / 'flags' / '4x3'
 ISOS = ('AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE '
-        'GB CH NO IS RS AL MK ME MD XK UA TR GE AM AZ KZ EU').split()
+        'GB CH NO IS RS AL MK ME MD XK UA TR GE AM AZ KZ EU '
+        'CN SG MO TW JP KR CA NZ AU US HK AE VN UY CL IL BN MU QA TH MN CR MY CO MX SA BR JO PE EC AR ID SV KH PH LB KG DO PS MA PY IQ GT ZM KE TJ RW').split()
 
 out = {}
 with sync_playwright() as p:
@@ -37,5 +38,7 @@ with sync_playwright() as p:
             out[iso] = 'data:image/png;base64,' + base64.b64encode(png).decode()
     browser.close()
 
+# pseudo-codes of sub-national entities reuse the national flag
+out['CN4'] = out['CN']; out['IQK'] = out['IQ']; out['TJD'] = out['TJ']
 (ROOT / 'data' / 'flags.json').write_text(json.dumps(out), encoding='utf-8')
 print(len(out), 'flags,', sum(len(v) for v in out.values()), 'bytes')

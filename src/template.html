@@ -176,6 +176,9 @@ h1 {
 .lg-nd .sw { width: 100%; height: 20px; border-radius: 2px; background: var(--nd); border: 1px dashed var(--stroke-nd); }
 .lg-nd .lb { font-size: 10.5px; color: var(--ink-2); text-align: center; line-height: 1.15; }
 .leaflet-top.leaflet-right .leaflet-control { margin-top: 10px; margin-right: 10px; }
+.leaflet-top.leaflet-left .leaflet-control.view { margin-top: 8px; margin-left: 10px; }
+path.cty.en { stroke: #fff; stroke-width: 1.4; }
+path.cty.en.is-hover, path.cty.en.is-active { stroke: var(--stroke-hover); stroke-width: 2.2; }
 .leaflet-bottom.leaflet-left .leaflet-control { margin-bottom: 10px; margin-left: 10px; }
 .leaflet-control.ov { border: 1px solid var(--line-2); }
 
@@ -371,6 +374,7 @@ path.cty.has-data { cursor: pointer; }
   var FLAGS = __FLAGS__;
   var D = __DATA__;            // iso -> {n:[en,hu,de], s:[m,r,sci], d:[Δm,Δr,Δsci]|null (OECD 2022→2025 change), note:''}
   var EU27 = __EU27__;
+  var EUROPE = __EUROPE__;     // the 43 European / wider-European participants (the map's home view)
   var BL = __BLOCS__;          // {blocs:[{id,n,c,d,k}], trend:{years,series}, europe43:{m,r,s}}
   var RG = __REGIONS__;        // [{iso,n:[en,hu,de],ll:[lat,lon],s:[m,r,sci],se,note}]
   var OECD = { m: 463, r: 461, s: 482 };
@@ -378,8 +382,8 @@ path.cty.has-data { cursor: pointer; }
   var I18N = {
     hu: {
       released: '2026. szeptember 8.',
-      title: 'PISA 2025 · Európa',
-      lede: 'Összesített eredmény (matematika, szövegértés, természettudomány egyenlő súllyal) a kiválasztott viszonyítási alaphoz képest: {b}. Kattints egy országra vagy régióra a részletekért.',
+      title: 'PISA 2025 · Európa', titleWorld: 'PISA 2025 · Világ',
+      lede: 'Összesített eredmény (matematika, szövegértés, természettudomány egyenlő súllyal) a kiválasztott viszonyítási alaphoz képest: {b}. Európa 43 résztvevője, a világ 90 résztvevője, 51 régió. Kattints egy országra vagy régióra a részletekért.',
       baseLabel: 'Viszonyítási alap', baseName: { eu: 'EU‑27 átlag', eur: 'Európa‑43 átlag', oecd: 'OECD‑átlag' }, baseShort: { eu: 'EU‑27', eur: 'Európa‑43', oecd: 'OECD' },
       composite: 'Összesített', math: 'Matematika', read: 'Szövegértés', sci: 'Természettudomány', sciShort: 'Term.tud.',
       legendTitle: 'Eltérés: {b} (pont)', legendCount: 'a számok: országok száma a sávban', legendLow: 'átlag alatt', legendHigh: 'átlag felett',
@@ -405,13 +409,16 @@ path.cty.has-data { cursor: pointer; }
       noteBaku: '2022‑ben csak Baku vett részt; a trend ezért nem összevethető.',
       noteNoChange: 'Az OECD nem közöl 2022‑höz viszonyított változást (korlátozott adatközlés).',
       noteSE: 'Standard hiba (matek / szövegértés / term.tud.): ',
-      scopeEU: 'EU‑27', scopeAll: 'Európa', topAll: 'Top 3 Európában', bottomAll: 'Alsó 3 Európában', tbSubAll: '— mind a 43 résztvevő, összesített pontszám',
+      scopeEU: 'EU‑27', scopeAll: 'Európa', topAll: 'Top 3 Európában', bottomAll: 'Alsó 3 Európában', tbSubAll: '— mind a 43 európai résztvevő, összesített pontszám',
+      scopeWorld: 'Világ', topWorld: 'Top 3 a világon', bottomWorld: 'Alsó 3 a világon', tbSubWorld: '— mind a 90 résztvevő, összesített pontszám',
+      viewEurope: 'Európa', viewWorld: 'Világ', rankWorld: 'Világrangsor', outsideEU: 'Európán kívül', subTag: 'Nem országos egység',
+      noteSub: 'Nem országos adat: a PISA‑ban külön résztvevőként szereplő területi egység, nem az ország egésze.',
       attribution: 'Adatok: OECD PISA 2025 · Határok: Natural Earth'
     },
     en: {
       released: '8 September 2026',
-      title: 'PISA 2025 · Europe',
-      lede: 'Composite score (mathematics, reading and science, equally weighted) relative to the selected baseline: {b}. Click a country or a region for details.',
+      title: 'PISA 2025 · Europe', titleWorld: 'PISA 2025 · World',
+      lede: 'Composite score (mathematics, reading and science, equally weighted) relative to the selected baseline: {b}. 43 European participants, 90 worldwide, 51 regions. Click a country or a region for details.',
       baseLabel: 'Baseline', baseName: { eu: 'EU‑27 average', eur: 'Europe‑43 average', oecd: 'OECD average' }, baseShort: { eu: 'EU‑27', eur: 'Europe‑43', oecd: 'OECD' },
       composite: 'Composite', math: 'Mathematics', read: 'Reading', sci: 'Science', sciShort: 'Science',
       legendTitle: 'Difference from the {b} (points)', legendCount: 'numbers: countries in the band', legendLow: 'below average', legendHigh: 'above average',
@@ -437,13 +444,16 @@ path.cty.has-data { cursor: pointer; }
       noteBaku: 'In 2022 only Baku took part, so the trend is not comparable.',
       noteNoChange: 'The OECD does not report a change since 2022 (limited reporting).',
       noteSE: 'Standard errors (maths / reading / science): ',
-      scopeEU: 'EU‑27', scopeAll: 'Europe', topAll: 'Top 3 in Europe', bottomAll: 'Bottom 3 in Europe', tbSubAll: '— all 43 participants, composite score',
+      scopeEU: 'EU‑27', scopeAll: 'Europe', topAll: 'Top 3 in Europe', bottomAll: 'Bottom 3 in Europe', tbSubAll: '— all 43 European participants, composite score',
+      scopeWorld: 'World', topWorld: 'Top 3 worldwide', bottomWorld: 'Bottom 3 worldwide', tbSubWorld: '— all 90 participants, composite score',
+      viewEurope: 'Europe', viewWorld: 'World', rankWorld: 'World rank', outsideEU: 'Outside Europe', subTag: 'Sub‑national entity',
+      noteSub: 'Not a national result: a sub‑national entity that takes part in PISA in its own right.',
       attribution: 'Data: OECD PISA 2025 · Boundaries: Natural Earth'
     },
     de: {
       released: '8. September 2026',
-      title: 'PISA 2025 · Europa',
-      lede: 'Gesamtwert (Mathematik, Lesen, Naturwissenschaften gleich gewichtet) im Vergleich zur gewählten Bezugsgröße: {b}. Für Details auf ein Land oder eine Region klicken.',
+      title: 'PISA 2025 · Europa', titleWorld: 'PISA 2025 · Welt',
+      lede: 'Gesamtwert (Mathematik, Lesen, Naturwissenschaften gleich gewichtet) im Vergleich zur gewählten Bezugsgröße: {b}. 43 europäische Teilnehmer, 90 weltweit, 51 Regionen. Für Details auf ein Land oder eine Region klicken.',
       baseLabel: 'Bezugsgröße', baseName: { eu: 'EU‑27‑Schnitt', eur: 'Europa‑43‑Schnitt', oecd: 'OECD‑Schnitt' }, baseShort: { eu: 'EU‑27', eur: 'Europa‑43', oecd: 'OECD' },
       composite: 'Gesamt', math: 'Mathematik', read: 'Lesen', sci: 'Naturwissenschaften', sciShort: 'Naturwiss.',
       legendTitle: 'Abweichung vom {b} (Punkte)', legendCount: 'Zahlen: Länder in der Klasse', legendLow: 'unter dem Schnitt', legendHigh: 'über dem Schnitt',
@@ -469,7 +479,10 @@ path.cty.has-data { cursor: pointer; }
       noteBaku: '2022 nahm nur Baku teil; der Trend ist daher nicht vergleichbar.',
       noteNoChange: 'Die OECD weist keine Veränderung gegenüber 2022 aus (eingeschränkte Berichterstattung).',
       noteSE: 'Standardfehler (Mathematik / Lesen / Naturwiss.): ',
-      scopeEU: 'EU‑27', scopeAll: 'Europa', topAll: 'Top 3 in Europa', bottomAll: 'Letzte 3 in Europa', tbSubAll: '— alle 43 Teilnehmer, Gesamtwert',
+      scopeEU: 'EU‑27', scopeAll: 'Europa', topAll: 'Top 3 in Europa', bottomAll: 'Letzte 3 in Europa', tbSubAll: '— alle 43 europäischen Teilnehmer, Gesamtwert',
+      scopeWorld: 'Welt', topWorld: 'Top 3 weltweit', bottomWorld: 'Letzte 3 weltweit', tbSubWorld: '— alle 90 Teilnehmer, Gesamtwert',
+      viewEurope: 'Europa', viewWorld: 'Welt', rankWorld: 'Weltrang', outsideEU: 'Außerhalb Europas', subTag: 'Subnationale Einheit',
+      noteSub: 'Kein Landeswert: eine subnationale Einheit, die eigenständig an PISA teilnimmt.',
       attribution: 'Daten: OECD PISA 2025 · Grenzen: Natural Earth'
     }
   };
@@ -477,26 +490,35 @@ path.cty.has-data { cursor: pointer; }
   var NAME_IDX = { en: 0, hu: 1, de: 2 };
 
   // ---- derived statistics --------------------------------------------------
-  var isos = Object.keys(D);
-  isos.forEach(function (k) { var s = D[k].s; D[k].c = (s[0] + s[1] + s[2]) / 3; });
+  var isos = Object.keys(D);                 // all 90 participants with a composite score
+  isos.forEach(function (k) { var s = D[k].s; D[k].c = (s[0] + s[1] + s[2]) / 3; D[k].eur = EUROPE.indexOf(k) >= 0; });
   var EU = { m: 0, r: 0, s: 0 };
   EU27.forEach(function (k) { EU.m += D[k].s[0]; EU.r += D[k].s[1]; EU.s += D[k].s[2]; });
   EU.m /= EU27.length; EU.r /= EU27.length; EU.s /= EU27.length;
   EU.c = (EU.m + EU.r + EU.s) / 3;
-  var EUR = { m: BL.europe43.m, r: BL.europe43.r, s: BL.europe43.s }; EUR.c = (EUR.m + EUR.r + EUR.s) / 3;
+  var EUR = { m: 0, r: 0, s: 0 };
+  EUROPE.forEach(function (k) { EUR.m += D[k].s[0]; EUR.r += D[k].s[1]; EUR.s += D[k].s[2]; });
+  EUR.m /= EUROPE.length; EUR.r /= EUROPE.length; EUR.s /= EUROPE.length;
+  EUR.c = (EUR.m + EUR.r + EUR.s) / 3;
   var OE = { m: OECD.m, r: OECD.r, s: OECD.s }; OE.c = (OE.m + OE.r + OE.s) / 3;
   var BASES = { eu: EU, eur: EUR, oecd: OE };
   var base = 'eu';                       // baseline the colours are computed against
   try { var sb = localStorage.getItem('pisa2025-base'); if (sb && BASES[sb]) base = sb; } catch (e) {}
   function B() { return BASES[base]; }
   function devOf(c) { return c - B().c; }
-  var byComp = isos.slice().sort(function (a, b) { return D[b].c - D[a].c; });
+  var worldSorted = isos.slice().sort(function (a, b) { return D[b].c - D[a].c; });
+  worldSorted.forEach(function (k, i) { D[k].rankWorld = i + 1; });
+  var byComp = worldSorted.filter(function (k) { return D[k].eur; });
   byComp.forEach(function (k, i) { D[k].rankEurope = i + 1; });
   var euSorted = byComp.filter(function (k) { return EU27.indexOf(k) >= 0; });
   euSorted.forEach(function (k, i) { D[k].rankEU = i + 1; });
-  var scope = 'eu';   // widget: 'eu' = EU-27 member states, 'all' = all 43 mapped participants
-  function topList() { var src = scope === 'eu' ? euSorted : byComp; return src.slice(0, 3); }
-  function bottomList() { var src = scope === 'eu' ? euSorted : byComp; return src.slice(-3).reverse(); }  // weakest first
+  var view = 'europe';                 // 'europe' (home) or 'world'
+  try { var sv = localStorage.getItem('pisa2025-view'); if (sv === 'world') view = 'world'; } catch (e) {}
+  var scope = view === 'world' ? 'world' : 'eu';   // widget: 'eu' = EU-27, 'all' = Europe-43, 'world' = all 90
+  function scopeList() { return scope === 'eu' ? euSorted : (scope === 'all' ? byComp : worldSorted); }
+  function topList() { return scopeList().slice(0, 3); }
+  function bottomList() { return scopeList().slice(-3).reverse(); }  // weakest first
+  function visible() { return view === 'world' ? isos : EUROPE; }
   RG.forEach(function (r) { r.c = (r.s[0] + r.s[1] + r.s[2]) / 3; });
 
   var CLASSES = ['a3', 'a2', 'a1', 'n0', 'b1', 'b2', 'b3', 'b4'];
@@ -513,7 +535,8 @@ path.cty.has-data { cursor: pointer; }
   var counts = {};
   function recount() {
     CLASSES.forEach(function (c) { counts[c] = 0; });
-    isos.forEach(function (k) { D[k].cls = classOf(devOf(D[k].c)); counts[D[k].cls]++; });
+    isos.forEach(function (k) { D[k].cls = classOf(devOf(D[k].c)); });
+    visible().forEach(function (k) { counts[D[k].cls]++; });
     RG.forEach(function (r) { r.cls = classOf(devOf(r.c)); });
   }
   recount();
@@ -540,7 +563,9 @@ path.cty.has-data { cursor: pointer; }
     document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = T(el.getAttribute('data-i18n')); });
     document.querySelectorAll('[data-i18n-html]').forEach(function (el) { el.innerHTML = T(el.getAttribute('data-i18n-html')); });
     document.querySelector('.lede').textContent = TB('lede');
-    document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang)); });
+    document.querySelector('h1').textContent = view === 'world' ? T('titleWorld') : T('title');
+    document.querySelectorAll('.lang button[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang)); });
+    document.querySelectorAll('.view button').forEach(function (b) { var v = b.getAttribute('data-view'); b.textContent = T(v === 'world' ? 'viewWorld' : 'viewEurope'); b.setAttribute('aria-pressed', String(v === view)); });
     document.documentElement.lang = lang;
     document.title = T('title').replace(' · ', ' ') + (lang === 'hu' ? '-térkép' : (lang === 'de' ? '-Karte' : ' map'));
   }
@@ -578,23 +603,25 @@ path.cty.has-data { cursor: pointer; }
     return '<button type="button" class="row" data-iso="' + k + '">' +
       '<span class="rk">' + rank + '</span>' +
       '<img class="fl" src="' + FLAGS[k] + '" alt="">' +
-      '<span class="nm">' + nameOf(k) + (scope === 'all' && EU27.indexOf(k) < 0 ? ' <small>' + T('nonEU') + '</small>' : '') + '</span>' +
+      '<span class="nm">' + nameOf(k) + (D[k].note === 'sub' ? ' <small>' + T('subTag') + '</small>' : (scope === 'all' && EU27.indexOf(k) < 0 ? ' <small>' + T('nonEU') + '</small>' : '')) + '</span>' +
       '<span class="sc">' + fmt(d.c, 1) + '</span>' +
       '<span class="pill ' + pillCls(dev, 5) + '">' + signed(dev, 1) + '</span>' +
       '</button>';
   }
   function renderTB() {
     var el = document.getElementById('tb');
-    var rk = function (k) { return scope === 'eu' ? D[k].rankEU : D[k].rankEurope; };
+    var rk = function (k) { return scope === 'eu' ? D[k].rankEU : (scope === 'all' ? D[k].rankEurope : D[k].rankWorld); };
     var html = '<div class="scope" role="group"><button type="button" data-scope="eu" aria-pressed="' + (scope === 'eu') + '">' + T('scopeEU') + '</button>' +
-      '<button type="button" data-scope="all" aria-pressed="' + (scope === 'all') + '">' + T('scopeAll') + ' · ' + isos.length + '</button></div>';
-    html += '<div><h3><span class="mk up"></span>' + T(scope === 'eu' ? 'top' : 'topAll') + '</h3><div class="rows">';
+      '<button type="button" data-scope="all" aria-pressed="' + (scope === 'all') + '">' + T('scopeAll') + ' · ' + EUROPE.length + '</button>' +
+      '<button type="button" data-scope="world" aria-pressed="' + (scope === 'world') + '">' + T('scopeWorld') + ' · ' + isos.length + '</button></div>';
+    var sfx = scope === 'eu' ? '' : (scope === 'all' ? 'All' : 'World');
+    html += '<div><h3><span class="mk up"></span>' + T('top' + sfx) + '</h3><div class="rows">';
     topList().forEach(function (k) { html += rowHtml(k, rk(k)); });
-    html += '</div></div><div><h3><span class="mk dn"></span>' + T(scope === 'eu' ? 'bottom' : 'bottomAll') + '</h3><div class="rows">';
+    html += '</div></div><div><h3><span class="mk dn"></span>' + T('bottom' + sfx) + '</h3><div class="rows">';
     bottomList().forEach(function (k) { html += rowHtml(k, rk(k)); });
     html += '</div></div>';
     el.innerHTML = html;
-    document.querySelector('[data-i18n="tbSub"]').textContent = T(scope === 'eu' ? 'tbSub' : 'tbSubAll');
+    document.querySelector('[data-i18n="tbSub"]').textContent = T('tbSub' + sfx);
     el.querySelectorAll('.row').forEach(function (b) {
       var k = b.getAttribute('data-iso');
       b.addEventListener('click', function () { focusCountry(k); });
@@ -671,11 +698,14 @@ path.cty.has-data { cursor: pointer; }
   }
   function popupHtml(k) {
     var d = D[k], isEU = EU27.indexOf(k) >= 0, dev = devOf(d.c);
+    var tag = d.note === 'sub' ? T('subTag') : (isEU ? T('euMember') : (d.eur ? T('nonEU') : T('outsideEU')));
     var h = '<div class="pp-h"><img src="' + FLAGS[k] + '" alt=""><div class="t"><div class="nm">' + nameOf(k) + '</div>' +
-      '<div class="tag">' + (isEU ? T('euMember') : T('nonEU')) + '</div></div></div>';
+      '<div class="tag">' + tag + '</div></div></div>';
     h += '<div class="pp-hero"><div><div class="lbl">' + T('composite') + '</div><div class="big">' + fmt(d.c, 1) + '</div></div>' +
       '<div class="dv"><span class="pill ' + pillCls(dev, 5) + '">' + signed(dev, 1) + ' · ' + T('baseShort')[base] + '</span>' +
-      '<span class="rank">' + (isEU ? T('rankEU') + ' ' + d.rankEU + T('of') + EU27.length + ' · ' : '') + T('rankEurope') + ' ' + d.rankEurope + T('of') + isos.length + '</span></div></div>';
+      '<span class="rank">' + (isEU ? T('rankEU') + ' ' + d.rankEU + T('of') + EU27.length + ' · ' : '') +
+      (d.eur ? T('rankEurope') + ' ' + d.rankEurope + T('of') + EUROPE.length + ' · ' : '') +
+      T('rankWorld') + ' ' + d.rankWorld + T('of') + isos.length + '</span></div></div>';
     h += domainRows(d.s, null, 'Δ 2022', d.d);
     var notes = [];
     if (d.note === '*' || d.note === '*nochange') notes.push(T('noteStar'));
@@ -683,6 +713,8 @@ path.cty.has-data { cursor: pointer; }
     if (d.note === 'partial') notes.push(T('notePartial'));
     if (d.note === 'no2022') notes.push(T('noteNo2022'));
     if (d.note === 'baku2022') notes.push(T('noteBaku'));
+    if (d.note === 'nochange') notes.push(T('noteNoChange'));
+    if (d.note === 'sub') notes.push(T('noteSub'));
     if (notes.length) h += '<div class="pp-f">' + notes.map(function (n) { return '<p>' + n + '</p>'; }).join('') + '</div>';
     return h;
   }
@@ -703,7 +735,7 @@ path.cty.has-data { cursor: pointer; }
   // ---- map -----------------------------------------------------------------
   var map = L.map('map', {
     zoomControl: true, attributionControl: true, minZoom: 3, maxZoom: 8, zoomSnap: 0.1, zoomDelta: 0.5,
-    wheelPxPerZoomLevel: 90, maxBounds: [[27, -32], [74, 80]], maxBoundsViscosity: 0.7
+    wheelPxPerZoomLevel: 90, maxBounds: [[27, -32], [74, 80]], maxBoundsViscosity: 0.7, worldCopyJump: false
   });
   map.attributionControl.setPrefix(false);
   var layers = {};
@@ -723,31 +755,53 @@ path.cty.has-data { cursor: pointer; }
       layer.bindTooltip(function () { return '<b>' + nameOf(k) + '</b> · ' + fmt(D[k].c, 1) + ' (' + signed(devOf(D[k].c), 1) + ')'; }, { sticky: true, direction: 'top', opacity: 1 });
     }
   }).addTo(map);
-  function el(k) { return layers[k] && layers[k].getElement ? layers[k].getElement() : null; }
+  // Entities without a usable polygon (B-S-J-Z, Singapore, Hong Kong, Macao, Mauritius, Dushanbe, Kurdistan Region) are markers.
+  map.createPane('entities').style.zIndex = 440;
+  var markers = {};
+  isos.forEach(function (k) {
+    if (!D[k].pt) return;
+    var m = L.circleMarker(D[k].pt, { pane: 'entities', radius: 7, className: 'cty en ' + D[k].cls + ' has-data', weight: 1.4, fillOpacity: 1, bubblingMouseEvents: false });
+    markers[k] = m;
+    m.on('mouseover', function () { setHover(k, true); });
+    m.on('mouseout', function () { setHover(k, false); });
+    m.on('click', function () { openFor(k, L.latLng(D[k].pt)); });
+    m.bindTooltip(function () { return '<b>' + nameOf(k) + '</b> · ' + fmt(D[k].c, 1) + ' (' + signed(devOf(D[k].c), 1) + ')'; }, { sticky: true, direction: 'top', opacity: 1 });
+    m.addTo(map);
+  });
+  function el(k) {
+    if (layers[k] && layers[k].getElement) return layers[k].getElement();
+    return markers[k] && markers[k].getElement ? markers[k].getElement() : null;
+  }
+  function elAll(k) { var a = []; if (layers[k] && layers[k].getElement && layers[k].getElement()) a.push(layers[k].getElement()); if (markers[k] && markers[k].getElement && markers[k].getElement()) a.push(markers[k].getElement()); return a; }
   function setHover(k, on) {
-    var e = el(k); if (!e) return;
-    if (on) { e.classList.add('is-hover'); layers[k].bringToFront(); }
-    else { e.classList.remove('is-hover'); }
+    var es = elAll(k); if (!es.length) return;
+    es.forEach(function (e) { e.classList.toggle('is-hover', on); });
+    if (on && layers[k]) layers[k].bringToFront();
     document.querySelectorAll('.row[data-iso="' + k + '"]').forEach(function (b) { b.classList.toggle('is-active', on); });
   }
   function setActive(k) {
-    if (activeIso && el(activeIso)) el(activeIso).classList.remove('is-active');
+    if (activeIso) elAll(activeIso).forEach(function (e) { e.classList.remove('is-active'); });
     activeIso = k;
-    if (k && el(k)) { el(k).classList.add('is-active'); layers[k].bringToFront(); }
+    if (k) { elAll(k).forEach(function (e) { e.classList.add('is-active'); }); if (layers[k]) layers[k].bringToFront(); }
   }
   var popup = L.popup({ maxWidth: 320, minWidth: 260, autoPanPadding: [24, 24], closeButton: true });
   function openFor(k, latlng) {
     setActive(k); activeRegion = null;
-    popup.setLatLng(latlng || layers[k].getBounds().getCenter()).setContent(popupHtml(k)).openOn(map);
+    popup.setLatLng(latlng || anchorOf(k)).setContent(popupHtml(k)).openOn(map);
   }
   map.on('popupclose', function () { setActive(null); activeRegion = null; });
   function focusCountry(k) {
-    var p = layers[k].feature.properties;
-    var b = p.bb ? L.latLngBounds(p.bb) : layers[k].getBounds();
-    map.flyToBounds(b, { padding: [40, 40], maxZoom: 5.5, duration: 0.7 });
+    if (!D[k].eur && view !== 'world') setView('world', true);
+    if (!layers[k]) { map.flyTo(D[k].pt, Math.max(map.getZoom(), 5), { duration: 0.7 }); }
+    else {
+      var p = layers[k].feature.properties;
+      var b = p.bb ? L.latLngBounds(p.bb) : layers[k].getBounds();
+      map.flyToBounds(b, { padding: [40, 40], maxZoom: 5.5, duration: 0.7 });
+    }
     map.once('moveend', function () { openFor(k, anchorOf(k)); });
   }
   function anchorOf(k) {
+    if (D[k].pt) return L.latLng(D[k].pt);
     var p = layers[k].feature.properties;
     return p.c ? L.latLng(p.c[0], p.c[1]) : layers[k].getBounds().getCenter();
   }
@@ -771,13 +825,19 @@ path.cty.has-data { cursor: pointer; }
     setActive(null); activeRegion = r;
     popup.setLatLng(r.ll).setContent(regionPopupHtml(r)).openOn(map);
   }
+  function syncRegions() {
+    var want = showRegions && map.getZoom() >= 3;
+    if (want && !map.hasLayer(regionLayer)) regionLayer.addTo(map);
+    if (!want && map.hasLayer(regionLayer)) map.removeLayer(regionLayer);
+  }
+  map.on('zoomend', syncRegions);
   function setRegions(on) {
     showRegions = on;
-    if (on) regionLayer.addTo(map); else map.removeLayer(regionLayer);
+    syncRegions();
     try { localStorage.setItem('pisa2025-regions', on ? '1' : '0'); } catch (e) {}
     var b = document.querySelector('.lg-rg'); if (b) b.setAttribute('aria-pressed', String(on));
   }
-  if (showRegions) regionLayer.addTo(map);
+  syncRegions();
 
   // ---- baseline switching ----------------------------------------------------
   function setBase(b) {
@@ -786,9 +846,7 @@ path.cty.has-data { cursor: pointer; }
     try { localStorage.setItem('pisa2025-base', b); } catch (e) {}
     recount();
     isos.forEach(function (k) {
-      var e = el(k); if (!e) return;
-      CLASSES.forEach(function (c) { e.classList.remove(c); });
-      e.classList.add(D[k].cls);
+      elAll(k).forEach(function (e) { CLASSES.forEach(function (c) { e.classList.remove(c); }); e.classList.add(D[k].cls); });
     });
     RG.forEach(function (r) {
       var e = r.marker.getElement(); if (!e) return;
@@ -816,8 +874,34 @@ path.cty.has-data { cursor: pointer; }
       return c;
     }
   });
+  var ViewCtl = L.Control.extend({
+    onAdd: function () {
+      var c = L.DomUtil.create('div', 'lang view ov');
+      c.setAttribute('role', 'group'); c.setAttribute('aria-label', 'View');
+      c.innerHTML = '<button type="button" data-view="europe" aria-pressed="true"></button><button type="button" data-view="world" aria-pressed="false"></button>';
+      L.DomEvent.disableClickPropagation(c); L.DomEvent.disableScrollPropagation(c);
+      return c;
+    }
+  });
   new LangCtl({ position: 'topright' }).addTo(map);
+  new ViewCtl({ position: 'topleft' }).addTo(map);
   new LegendCtl({ position: 'bottomleft' }).addTo(map);
+  var EUROPE_BOUNDS = [[27, -32], [74, 80]], WORLD_BOUNDS = [[-62, -185], [84, 185]];
+  function fitWorld() {
+    var small = map.getSize().x < 700;
+    map.fitBounds([[-56, -168], [76, 178]], { paddingTopLeft: [12, 12], paddingBottomRight: [12, small ? 100 : 104] });
+  }
+  function setView(v, keepScope) {
+    view = v;
+    try { localStorage.setItem('pisa2025-view', v); } catch (e) {}
+    if (v === 'world') { map.setMinZoom(1.5); map.setMaxBounds(WORLD_BOUNDS); fitWorld(); if (!keepScope) scope = 'world'; }
+    else { map.setMaxBounds(EUROPE_BOUNDS); map.setMinZoom(3); fitEU(); if (!keepScope) scope = 'eu'; }
+    map.closePopup();
+    recount(); renderAll();
+  }
+  document.querySelectorAll('.view button').forEach(function (b) {
+    b.addEventListener('click', function () { if (b.getAttribute('data-view') !== view) setView(b.getAttribute('data-view')); });
+  });
 
   function euBounds() {
     var b = null;
@@ -833,7 +917,7 @@ path.cty.has-data { cursor: pointer; }
     var small = map.getSize().x < 700;
     map.fitBounds(euBounds(), { paddingTopLeft: [12, small ? 12 : 16], paddingBottomRight: [12, small ? 100 : 104] });
   }
-  fitEU();
+  if (view === 'world') { map.setMinZoom(1.5); map.setMaxBounds(WORLD_BOUNDS); fitWorld(); } else { fitEU(); }
   var currentAttr = '';
 
   // ---- language switching --------------------------------------------------
@@ -847,7 +931,7 @@ path.cty.has-data { cursor: pointer; }
       else if (activeIso) popup.setContent(popupHtml(activeIso));
     }
   }
-  document.querySelectorAll('.lang button').forEach(function (b) {
+  document.querySelectorAll('.lang button[data-lang]').forEach(function (b) {
     b.addEventListener('click', function () {
       lang = b.getAttribute('data-lang');
       try { localStorage.setItem('pisa2025-lang', lang); } catch (e) {}
@@ -855,6 +939,6 @@ path.cty.has-data { cursor: pointer; }
     });
   });
   renderAll();
-  window.__pisa = { map: map, layers: layers, focusCountry: focusCountry, openFor: openFor, anchorOf: anchorOf, fitEU: fitEU, setBase: setBase, setRegions: setRegions, openRegion: openRegion, regions: RG };
+  window.__pisa = { map: map, layers: layers, focusCountry: focusCountry, openFor: openFor, anchorOf: anchorOf, fitEU: fitEU, fitWorld: fitWorld, setView: setView, setBase: setBase, setRegions: setRegions, openRegion: openRegion, regions: RG };
 })();
 </script>
